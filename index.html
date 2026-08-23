@@ -343,7 +343,7 @@ aplicarTema(localStorage.getItem("tema")||"dark");
 
 /* ---------- dock ---------- */
 function moverInd(){
-  const b=document.querySelector(".dock button.on"); if(!b) return;
+  const b=document.querySelector(".dock button.on"); if(!b||!b.offsetWidth) return;
   $("#ind").style.left=b.offsetLeft+"px"; $("#ind").style.width=b.offsetWidth+"px";
 }
 document.querySelectorAll(".dock button").forEach(b=>b.onclick=()=>{
@@ -355,6 +355,12 @@ document.querySelectorAll(".dock button").forEach(b=>b.onclick=()=>{
 });
 addEventListener("resize",moverInd);
 
+/* WebKit nao aceita innerHTML em elementos SVG */
+function setSVG(el, markup){
+  while(el.firstChild) el.removeChild(el.firstChild);
+  const doc=new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg">'+markup+'</svg>',"image/svg+xml");
+  Array.from(doc.documentElement.childNodes).forEach(n=>el.appendChild(document.importNode(n,true)));
+}
 /* ---------- casa isométrica ---------- */
 const P0=[290,120], U=[140,70], V=[-140,70];
 const pt=(s,t)=>[P0[0]+U[0]*s+V[0]*t, P0[1]+U[1]*s+V[1]*t];
@@ -366,7 +372,7 @@ function montarCasa(){
     const p=[pt(s0,t0),pt(s1,t0),pt(s1,t1),pt(s0,t1)].map(q=>q.map(n=>n.toFixed(1)).join(",")).join(" ");
     g.push(`<polygon class="pan" points="${p}" fill="url(#gPan)"/>`);
   }
-  $("#panels").innerHTML=g.join("");
+  setSVG($("#panels"), g.join(""));
 
   // janelas nas duas paredes
   const jan=[];
@@ -384,7 +390,7 @@ function montarCasa(){
     jan.push(`<polygon class="win" points="${par(D,AD,a,b,16,44)}" fill="var(--h-win)" opacity=".8"/>`);
     jan.push(`<polygon class="win" points="${par(D,AD,a,b,54,78)}" fill="var(--h-win)" opacity=".5"/>`);
   });
-  $("#windows").innerHTML=jan.join("");
+  setSVG($("#windows"), jan.join(""));
 }
 montarCasa();
 
@@ -569,7 +575,7 @@ async function entrar(e){
 }
 function abrir(){
   $("#gate").style.display="none"; $("#app").style.display="block"; $("#dock").style.display="flex";
-  requestAnimationFrame(moverInd); iniciar();
+  requestAnimationFrame(moverInd); setTimeout(moverInd,60); setTimeout(moverInd,400); iniciar();
 }
 async function tickRapido(){
   try{ pintarLive(await api("api/meter")); }
