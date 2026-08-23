@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>⚡ Monitor de Energia</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--tx:#e6edf3;--mut:#8b949e;--acc:#3fb950;--sol:#d29922;--red:#f85149}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,system-ui,sans-serif;padding:16px;padding-top:max(16px,env(safe-area-inset-top))}
+h1{font-size:1.3rem;margin-bottom:4px}
+.sub{color:var(--mut);font-size:.8rem;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid #21262d;border-radius:12px;padding:14px}
+.card .lbl{color:var(--mut);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px}
+.card .val{font-size:1.5rem;font-weight:700;margin-top:4px}
+.card .un{font-size:.85rem;color:var(--mut);font-weight:400}
+.ph{display:flex;justify-content:space-between;font-size:.85rem;margin-top:6px}
+.ph span:first-child{color:var(--mut)}
+.big .val{font-size:2.2rem}
+.grn{color:var(--acc)}.sol{color:var(--sol)}.red{color:var(--red)}
+canvas{background:var(--card);border:1px solid #21262d;border-radius:12px;padding:8px;margin-bottom:14px;width:100%!important}
+.upd{color:var(--mut);font-size:.75rem;text-align:center}
+#login{display:flex;height:80vh;align-items:center;justify-content:center;gap:8px}
+#login input{padding:12px;border-radius:8px;border:1px solid #333;background:var(--card);color:#fff;font-size:1rem}
+#login button{padding:12px 18px;border-radius:8px;border:0;background:#238636;color:#fff;font-size:1rem}
+#app{display:none}
+</style></head><body>
+<div id="login"><input id="pw" type="password" placeholder="senha" autocomplete="current-password"><button onclick="enter()">Entrar</button></div>
+<div id="app">
+<h1>⚡ Monitor de Energia</h1>
+<div class="sub">SPM02 trifásico · via Tuya Cloud</div>
+<div class="grid">
+  <div class="card big"><div class="lbl">Potência agora</div><div class="val grn" id="wt">–<span class="un"> W</span></div></div>
+  <div class="card"><div class="lbl">Consumo total</div><div class="val" id="fwd">–<span class="un"> kWh</span></div></div>
+  <div class="card"><div class="lbl">Injetado (solar)</div><div class="val sol" id="rev">–<span class="un"> kWh</span></div></div>
+  <div class="card"><div class="lbl">Frequência</div><div class="val" id="fq">–<span class="un"> Hz</span></div></div>
+</div>
+<div class="grid" id="phases"></div>
+<canvas id="chW" height="130"></canvas>
+<canvas id="chE" height="130"></canvas>
+<div class="upd" id="upd">carregando…</div>
+</div>
+<script>
+const API='https://grublhqnezkjxtztanwc.supabase.co/functions/v1/energia/';
+const qs=new URLSearchParams(location.search);
+if(qs.get('k')){localStorage.setItem('ek',qs.get('k'));history.replaceState(null,'',location.pathname)}
+let KEY=localStorage.getItem('ek')||'';
+function enter(){KEY=document.getElementById('pw').value.trim();localStorage.setItem('ek',KEY);boot()}
+document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')enter()});
+const H=async p=>{
+ const r=await fetch(API+p+(p.includes('?')?'&':'?')+'k='+encodeURIComponent(KEY));
+ if(r.status===401){localStorage.removeItem('ek');KEY='';show(false);throw new Error('senha incorreta')}
+ return r.json()};
+const show=ok=>{document.getElementById('login').style.display=ok?'none':'flex';document.getElementById('app').style.display=ok?'block':'none'};
+const F=(n,d=1)=>n==null?'–':Number(n).toLocaleString('pt-BR',{maximumFractionDigits:d});
+function phCard(n,p){return `<div class="card"><div class="lbl">Fase ${n}</div>
+<div class="ph"><span>Tensão</span><span>${F(p.v)} V</span></div>
+<div class="ph"><span>Corrente</span><span>${F(p.a,2)} A</span></div>
+<div class="ph"><span>Potência</span><span><b>${F(p.w,0)} W</b></span></div></div>`}
+async function live(){try{
+ const s=await H('api/status');
+ wt.innerHTML=F(s.w_total,0)+'<span class="un"> W</span>';
+ fwd.innerHTML=F(s.fwd_kwh,2)+'<span class="un"> kWh</span>';
+ rev.innerHTML=F(s.rev_kwh,2)+'<span class="un"> kWh</span>';
+ fq.innerHTML=F(s.freq,2)+'<span class="un"> Hz</span>';
+ phases.innerHTML=phCard('A',s.phase_a)+phCard('B',s.phase_b)+phCard('C',s.phase_c);
+ upd.textContent='atualizado '+new Date().toLocaleTimeString('pt-BR');
+}catch(e){if(upd)upd.textContent='erro: '+e.message}}
+let cW,cE;
+async function hist(){try{
+ const h=await H('api/history?hours=24');
+ const L=h.map(r=>new Date(r.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+ const o={responsive:true,plugins:{legend:{labels:{color:'#8b949e'}}},scales:{x:{ticks:{color:'#8b949e',maxTicksLimit:8}},y:{ticks:{color:'#8b949e'}}}};
+ cW?.destroy();cW=new Chart(chW,{type:'line',data:{labels:L,datasets:[{label:'Potência (W)',data:h.map(r=>r.w_total),borderColor:'#3fb950',tension:.3,pointRadius:0,fill:true,backgroundColor:'rgba(63,185,80,.1)'}]},options:o});
+ cE?.destroy();cE=new Chart(chE,{type:'line',data:{labels:L,datasets:[
+  {label:'Consumo (kWh)',data:h.map(r=>r.fwd_kwh),borderColor:'#58a6ff',tension:.3,pointRadius:0},
+  {label:'Injetado (kWh)',data:h.map(r=>r.rev_kwh),borderColor:'#d29922',tension:.3,pointRadius:0}]},options:o});
+}catch(e){}}
+async function boot(){
+ if(!KEY){show(false);return}
+ try{await H('api/status');show(true);live();hist();
+  window._t1??=setInterval(live,15000);window._t2??=setInterval(hist,300000);
+ }catch(e){}}
+boot();
+</script></body></html>
