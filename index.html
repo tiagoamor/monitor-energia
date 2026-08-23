@@ -65,6 +65,9 @@ nav button.on{background:var(--card2);color:var(--txt);box-shadow:0 1px 3px #000
 .flow svg{width:100%;max-width:520px;display:block;margin:0 auto;overflow:visible}
 .fl{font:600 13px -apple-system,sans-serif;fill:var(--txt)}
 .fv{font:700 17px -apple-system,sans-serif;fill:var(--txt);font-variant-numeric:tabular-nums}
+.fp{font:600 12px -apple-system,sans-serif;font-variant-numeric:tabular-nums}
+.fp.sol{fill:#fbbf24}.fp.imp{fill:#f87171}.fp.exp{fill:#34d399}
+.jan{text-align:center;font-size:11.5px;color:var(--dim);margin-top:10px}
 .pipe{stroke-width:5;fill:none;stroke-linecap:round;opacity:.18}
 .dash{stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:1 14;animation:run 1.1s linear infinite}
 @keyframes run{to{stroke-dashoffset:-15}}
@@ -135,33 +138,40 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
   </div>
 
   <div class="flow">
-    <svg viewBox="0 0 500 220">
-      <path class="pipe" id="p1" stroke="var(--sol)"  d="M110 62 H250 V110"/>
-      <path class="pipe" id="p2" stroke="var(--imp)"  d="M390 62 H250 V110"/>
-      <path class="pipe" id="p3" stroke="var(--casa)" d="M250 110 V158"/>
-      <path class="dash" id="d1" stroke="var(--sol)"  d="M110 62 H250 V110" style="display:none"/>
-      <path class="dash" id="d2" stroke="var(--imp)"  d="M390 62 H250 V110" style="display:none"/>
-      <path class="dash" id="d3" stroke="var(--casa)" d="M250 110 V158"/>
+    <svg viewBox="0 0 500 235">
+      <path class="pipe" stroke="var(--sol)"  d="M92 40 Q250 -8 408 40"/>
+      <path class="pipe" stroke="var(--sol)"  d="M110 72 H250 V120"/>
+      <path class="pipe" stroke="var(--imp)"  d="M390 72 H250 V120"/>
+      <path class="pipe" stroke="var(--casa)" d="M250 120 V168"/>
+      <path class="dash" id="d-inj"  stroke="var(--exp)"  d="M92 40 Q250 -8 408 40" style="display:none"/>
+      <path class="dash" id="d-sol"  stroke="var(--sol)"  d="M110 72 H250 V120" style="display:none"/>
+      <path class="dash" id="d-imp"  stroke="var(--imp)"  d="M390 72 H250 V120" style="display:none"/>
+      <path class="dash" id="d-casa" stroke="var(--casa)" d="M250 120 V168" style="display:none"/>
 
-      <g transform="translate(60,62)">
+      <text class="fp exp"  id="t-inj" x="250" y="10"  text-anchor="middle">—</text>
+      <text class="fp sol"  id="t-sol" x="172" y="64"  text-anchor="middle">—</text>
+      <text class="fp imp"  id="t-imp" x="330" y="64"  text-anchor="middle">—</text>
+
+      <g transform="translate(60,72)">
         <circle r="30" fill="#1b2438" stroke="var(--sol)" stroke-width="2"/>
         <text y="6" text-anchor="middle" font-size="26">☀️</text>
         <text class="fl" y="52" text-anchor="middle">Solar</text>
         <text class="fv" id="v-sol" y="74" text-anchor="middle">—</text>
       </g>
-      <g transform="translate(440,62)">
+      <g transform="translate(440,72)">
         <circle r="30" fill="#1b2438" stroke="var(--imp)" stroke-width="2" id="c-rede"/>
         <text y="6" text-anchor="middle" font-size="24">🔌</text>
         <text class="fl" y="52" text-anchor="middle" id="l-rede">Rede</text>
         <text class="fv" id="v-rede" y="74" text-anchor="middle">—</text>
       </g>
-      <g transform="translate(250,175)">
+      <g transform="translate(250,185)">
         <circle r="32" fill="#1b2438" stroke="var(--casa)" stroke-width="2"/>
         <text y="7" text-anchor="middle" font-size="26">🏠</text>
         <text class="fl" y="56" text-anchor="middle">Casa</text>
         <text class="fv" id="v-casa" y="78" text-anchor="middle">—</text>
       </g>
     </svg>
+    <div class="jan" id="janela">—</div>
   </div>
 
   <div class="grid">
@@ -195,10 +205,15 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
     <div class="card"><h3>Consumido da rede</h3><div class="big imp" id="h-imp">—<small>kWh</small></div></div>
   </div>
 
-  <h2 class="sec">Fases do medidor</h2>
+  <h2 class="sec">Fases do medidor · ao vivo</h2>
   <div class="tw card" style="padding:10px 14px"><table><thead><tr>
     <th>Fase</th><th>Tensão</th><th>Corrente</th><th>Potência</th></tr></thead>
-    <tbody id="fases"></tbody></table></div>
+    <tbody id="fases"></tbody></table>
+    <div class="jan" style="text-align:left;margin:10px 2px 2px">
+      O medidor informa só a intensidade de cada fase, sem o sentido. Como o inversor é
+      monofásico, uma fase pode estar injetando enquanto outra puxa da rede — por isso este
+      total costuma ser maior que o fluxo líquido mostrado acima.</div>
+  </div>
 </section>
 
 <!-- ================= SOLAR ================= -->
@@ -293,8 +308,10 @@ function pintarLive(L){
   setTimeout(()=>$("#dot").classList.remove("beat"),500);
   $("#stamp").textContent=new Date(L.ts).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
 
-  // ---- card autossuficiência
+  const ger=L.geracao_w||0, imp=L.importado_w||0, inj=L.injetado_w||0;
   const casa=L.casa_w||0, sw=L.casa_solar_w||0, rw=L.casa_rede_w||0;
+
+  // ---- autossuficiência
   $("#a-pc").textContent=L.autossuficiencia+"%";
   $("#a-pc").className="pc "+(L.autossuficiencia>=50?"sol":"imp");
   const tot=Math.max(1,sw+rw);
@@ -304,33 +321,40 @@ function pintarLive(L){
   $("#a-rw").textContent=nf(rw)+" W";
   $("#a-tw").textContent=nf(casa)+" W";
 
-  // ---- diagrama
-  const exp=L.exportando, redeAbs=Math.abs(L.rede_w);
-  $("#v-sol").textContent=nf(L.geracao_w)+" W";
+  // ---- diagrama: os três fluxos podem coexistir (inversor monofásico)
+  $("#v-sol").textContent=nf(ger)+" W";
   $("#v-casa").textContent=nf(casa)+" W";
-  $("#v-rede").textContent=nf(redeAbs)+" W";
+  $("#t-sol").textContent=sw>5?nf(sw)+" W":"";
+  $("#t-inj").textContent=inj>5?"↑ "+nf(inj)+" W":"";
+  $("#t-imp").textContent=imp>5?nf(imp)+" W":"";
+  $("#d-sol").style.display=sw>5?"":"none";
+  $("#d-inj").style.display=inj>5?"":"none";
+  $("#d-imp").style.display=imp>5?"":"none";
+  $("#d-casa").style.display=casa>5?"":"none";
+  const exp=inj>imp;
   $("#l-rede").textContent=exp?"Injetando":"Da rede";
+  $("#v-rede").textContent=nf(Math.abs(L.rede_w||0))+" W";
   const cor=exp?"var(--exp)":"var(--imp)";
-  $("#c-rede").setAttribute("stroke",cor); $("#p2").setAttribute("stroke",cor); $("#d2").setAttribute("stroke",cor);
-  $("#d1").style.display=L.geracao_w>5?"":"none";
-  $("#d2").style.display=redeAbs>5?"":"none";
-  $("#d2").setAttribute("d",exp?"M250 110 V62 H390":"M390 62 H250 V110");
-  $("#d3").style.display=casa>5?"":"none";
+  $("#c-rede").setAttribute("stroke",cor);
+  $("#janela").textContent=L.fluxo_ok
+    ? `fluxos medidos pelos contadores de energia · janela de ${Math.round((L.janela_s||0)/60)||4} min · fases ao vivo`
+    : "calibrando a medição de fluxo…";
 
   // ---- cards
-  const pct=Math.min(100,100*L.geracao_w/(capacidade*1000));
-  setv("#k-ger",nf(L.geracao_w),"W"); $("#b-ger").style.width=pct+"%";
+  const pct=Math.min(100,100*ger/(capacidade*1000));
+  setv("#k-ger",nf(ger),"W"); $("#b-ger").style.width=pct+"%";
   $("#k-gerp").textContent=nf(pct,0)+"% de "+nf(capacidade,3)+" kWp";
   setv("#k-casa",nf(casa),"W");
-  $("#k-auto").textContent=rw>0&&sw>0 ? `${nf(sw)} W do sol + ${nf(rw)} W da rede`
-    : rw>0 ? "100% da rede" : "100% do sol";
+  $("#k-auto").textContent = sw>5&&rw>5 ? `${nf(sw)} W do sol + ${nf(rw)} W da rede`
+    : rw>5 ? "100% da rede" : sw>5 ? "100% do sol" : "—";
   $("#h-rede").textContent=exp?"Injetando na rede":"Consumindo da rede";
   $("#k-rede").className="big "+(exp?"exp":"imp");
-  setv("#k-rede",nf(redeAbs),"W");
-  $("#k-redes").textContent=exp?"excedente exportado":"complemento importado";
+  setv("#k-rede",nf(Math.abs(L.rede_w||0)),"W");
+  $("#k-redes").textContent = imp>5&&inj>5
+    ? `${nf(inj)} W saindo e ${nf(imp)} W entrando ao mesmo tempo`
+    : exp ? "excedente exportado" : "complemento importado";
   setv("#k-apr",L.aproveitamento,"%");
-  $("#k-aprs").textContent=L.geracao_w>0
-    ? `${nf(sw)} W ficam em casa, ${nf(L.injetado_w)} W vão pra rede` : "sem geração agora";
+  $("#k-aprs").textContent = ger>0 ? `${nf(sw)} W ficam em casa, ${nf(inj)} W vão pra rede` : "sem geração agora";
 
   $("#fases").innerHTML=["a","b","c"].map(k=>{
     const f=L.fases[k];
