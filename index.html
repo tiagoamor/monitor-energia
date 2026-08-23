@@ -1,57 +1,87 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1120">
+<meta name="theme-color" content="#0b1120" id="mtheme">
 <title>Monitor de Energia</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-:root{
-  --bg:#0b1120; --card:#151d2e; --card2:#1b2438; --line:#26314a;
+:root, [data-theme="dark"]{
+  --bg:#0b1120; --bg2:#0e1526; --card:#151d2e; --card2:#1b2438; --line:#26314a;
   --txt:#e8eefc; --dim:#8a99b8;
   --sol:#fbbf24; --casa:#38bdf8; --exp:#34d399; --imp:#f87171;
+  --glass:rgba(28,38,60,.58); --glassb:rgba(255,255,255,.14); --glasson:rgba(255,255,255,.13);
+  --shadow:0 10px 34px rgba(0,0,0,.5);
+  --h-sky:#0f1830; --h-roof:#18223c; --h-left:#212c48; --h-right:#2c3959;
+  --h-panel:#0e1b33; --h-panelln:#3a5a92; --h-edge:#3a4767; --h-win:#fcd67a;
+  --h-line:#5d6d92; --h-ground:rgba(0,0,0,.35);
+}
+[data-theme="light"]{
+  --bg:#eef2f9; --bg2:#f7f9fd; --card:#ffffff; --card2:#f1f5fb; --line:#dfe6f1;
+  --txt:#16202f; --dim:#647389;
+  --sol:#e08c00; --casa:#0284c7; --exp:#0f9d६6; --exp:#0d9668; --imp:#dc2626;
+  --glass:rgba(255,255,255,.62); --glassb:rgba(0,0,0,.09); --glasson:rgba(10,20,40,.07);
+  --shadow:0 10px 30px rgba(20,40,80,.16);
+  --h-sky:#e4ebf6; --h-roof:#b9c6dd; --h-left:#ced9ea; --h-right:#e6edf7;
+  --h-panel:#31456e; --h-panelln:#7d93bd; --h-edge:#a9b7cf; --h-win:#f6c453;
+  --h-line:#93a3bd; --h-ground:rgba(40,60,100,.13);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--txt);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-  padding-bottom:env(safe-area-inset-bottom)}
+body{background:var(--bg);color:var(--txt);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:calc(104px + env(safe-area-inset-bottom));
+  transition:background .35s,color .35s}
 .wrap{max-width:1080px;margin:0 auto;padding:16px}
 
-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+header{display:flex;align-items:center;gap:11px;margin-bottom:16px}
 header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--exp);box-shadow:0 0 10px var(--exp);flex:none;
-  transition:.3s}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--exp);box-shadow:0 0 10px var(--exp);flex:none}
 .dot.off{background:var(--imp);box-shadow:0 0 10px var(--imp)}
 .dot.beat{animation:beat .5s}
 @keyframes beat{50%{transform:scale(2.1);opacity:.5}}
 .stamp{margin-left:auto;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+#theme{width:36px;height:36px;border-radius:50%;border:1px solid var(--glassb);
+  background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  color:var(--txt);font-size:16px;cursor:pointer;display:grid;place-items:center;flex:none;transition:.25s}
+#theme:active{transform:scale(.9)}
 
-nav{display:flex;gap:6px;background:var(--card);padding:5px;border-radius:14px;margin-bottom:18px;overflow-x:auto}
-nav button{flex:1;min-width:96px;background:none;border:0;color:var(--dim);font:600 14px inherit;
-  padding:10px 12px;border-radius:10px;cursor:pointer;white-space:nowrap;transition:.15s}
-nav button.on{background:var(--card2);color:var(--txt);box-shadow:0 1px 3px #0006}
+/* ---------- dock flutuante ---------- */
+.dock{position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(16px + env(safe-area-inset-bottom));z-index:60;
+  display:flex;gap:2px;padding:5px;border-radius:999px;
+  background:var(--glass);
+  backdrop-filter:blur(26px) saturate(190%);-webkit-backdrop-filter:blur(26px) saturate(190%);
+  border:1px solid var(--glassb);
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.16)}
+.dock button{position:relative;z-index:2;border:0;background:none;color:var(--dim);
+  font:600 13.5px inherit;padding:11px 20px;border-radius:999px;cursor:pointer;
+  white-space:nowrap;transition:color .25s}
+.dock button.on{color:var(--txt)}
+.dock .ind{position:absolute;top:5px;bottom:5px;left:0;width:0;border-radius:999px;
+  background:var(--glasson);z-index:1;
+  transition:left .34s cubic-bezier(.34,1.3,.5,1),width .34s cubic-bezier(.34,1.3,.5,1)}
 
-.tab{display:none;animation:fade .25s}
+.tab{display:none;animation:fade .28s}
 .tab.on{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;
+  transition:background .35s,border-color .35s}
 .card h3{font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
-.big{font-size:30px;font-weight:700;letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1.1;
-  transition:color .3s}
+.big{font-size:30px;font-weight:700;letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1.1}
 .big small{font-size:14px;font-weight:500;color:var(--dim);margin-left:3px;letter-spacing:0}
 .sub{font-size:12.5px;color:var(--dim);margin-top:5px}
 .brl{font-size:15px;font-weight:600;color:var(--exp);margin-top:6px;font-variant-numeric:tabular-nums}
+.nota{font-size:11.5px;line-height:1.55;color:var(--dim);margin-top:12px}
 
-/* card de autossuficiência */
-.self{background:linear-gradient(160deg,#1a2338,#141c2c);border:1px solid var(--line);
-  border-radius:18px;padding:18px;margin-bottom:12px}
+.self{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:12px}
 .self .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .self .pc{font-size:44px;font-weight:750;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums}
 .self .lb{font-size:13px;color:var(--dim);font-weight:500}
-.split{display:flex;height:13px;border-radius:8px;overflow:hidden;margin:14px 0 10px;background:#26314a}
+.split{display:flex;height:13px;border-radius:8px;overflow:hidden;margin:14px 0 10px;background:var(--line)}
 .split i{display:block;height:100%;transition:width .6s cubic-bezier(.4,0,.2,1)}
 .split .s{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
 .split .r{background:linear-gradient(90deg,#f87171,#ef4444)}
@@ -60,34 +90,35 @@ nav button.on{background:var(--card2);color:var(--txt);box-shadow:0 1px 3px #000
 .leg b{color:var(--txt);font-variant-numeric:tabular-nums}
 .sq{width:9px;height:9px;border-radius:3px;flex:none}
 
-/* diagrama de fluxo */
-.flow{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 16px;margin-bottom:12px}
-.flow svg{width:100%;max-width:520px;display:block;margin:0 auto;overflow:visible}
-.fl{font:600 13px -apple-system,sans-serif;fill:var(--txt)}
-.fv{font:700 17px -apple-system,sans-serif;fill:var(--txt);font-variant-numeric:tabular-nums}
-.fp{font:600 12px -apple-system,sans-serif;font-variant-numeric:tabular-nums}
-.fp.sol{fill:#fbbf24}.fp.imp{fill:#f87171}.fp.exp{fill:#34d399}
-.jan{text-align:center;font-size:11.5px;color:var(--dim);margin-top:10px}
-.pipe{stroke-width:5;fill:none;stroke-linecap:round;opacity:.18}
-.dash{stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:1 14;animation:run 1.1s linear infinite}
-@keyframes run{to{stroke-dashoffset:-15}}
+/* ---------- cena da casa ---------- */
+.scene{background:linear-gradient(180deg,var(--h-sky),var(--card));
+  border:1px solid var(--line);border-radius:18px;padding:8px 4px 4px;margin-bottom:12px;overflow:hidden}
+.scene svg{width:100%;display:block}
+.lbl{font:600 11.5px -apple-system,sans-serif;fill:var(--dim);letter-spacing:.4px}
+.val{font:700 19px -apple-system,sans-serif;fill:var(--txt);font-variant-numeric:tabular-nums}
+.val tspan{font-size:12px;font-weight:600;fill:var(--dim)}
+.wire{fill:none;stroke:var(--h-line);stroke-width:1.6;stroke-dasharray:4 4;opacity:.65}
+.flux{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-dasharray:0.5 11;
+  animation:run 1s linear infinite}
+@keyframes run{to{stroke-dashoffset:-11.5}}
+.pan{stroke:var(--h-panelln);stroke-width:.7}
 
 table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
 th{text-align:right;font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;
   letter-spacing:.5px;padding:8px 6px;border-bottom:1px solid var(--line)}
 th:first-child,td:first-child{text-align:left}
-td{text-align:right;padding:9px 6px;border-bottom:1px solid #1e2740}
+td{text-align:right;padding:9px 6px;border-bottom:1px solid var(--line)}
 tbody tr:last-child td{border:0}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.pill{font-size:10.5px;padding:1px 6px;border-radius:20px;background:#334155;color:var(--dim);margin-left:5px}
-.mini{display:inline-block;width:42px;height:6px;border-radius:4px;background:#26314a;overflow:hidden;
+.pill{font-size:10.5px;padding:1px 6px;border-radius:20px;background:var(--card2);color:var(--dim);margin-left:5px}
+.mini{display:inline-block;width:42px;height:6px;border-radius:4px;background:var(--line);overflow:hidden;
   vertical-align:middle;margin-right:6px}
 .mini i{display:block;height:100%;background:var(--sol)}
 .chart{position:relative;height:230px}
 .chart.tall{height:290px}
-h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px}
+h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px}
 .sol{color:var(--sol)} .casa{color:var(--casa)} .exp{color:var(--exp)} .imp{color:var(--imp)}
-.bar{height:7px;border-radius:5px;background:#26314a;overflow:hidden;margin-top:9px}
+.bar{height:7px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:9px}
 .bar i{display:block;height:100%;border-radius:5px;transition:width .5s}
 
 #gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:99}
@@ -113,16 +144,66 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
   <span class="dot" id="dot"></span>
   <h1>Monitor de Energia</h1>
   <span class="stamp" id="stamp">—</span>
+  <button id="theme" title="Alternar tema">🌙</button>
 </header>
-
-<nav>
-  <button class="on" data-t="agora">⚡ Agora</button>
-  <button data-t="solar">☀️ Solar</button>
-  <button data-t="hist">📊 Histórico</button>
-</nav>
 
 <!-- ================= AGORA ================= -->
 <section class="tab on" id="t-agora">
+
+  <div class="scene">
+    <svg id="casa" viewBox="0 0 560 430" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="gRoof" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--h-roof)"/><stop offset="1" stop-color="var(--h-left)"/>
+        </linearGradient>
+        <linearGradient id="gPan" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="var(--h-panel)"/>
+          <stop offset="1" stop-color="var(--h-panelln)" stop-opacity=".55"/>
+        </linearGradient>
+        <radialGradient id="gGlow">
+          <stop offset="0" stop-color="#fbbf24" stop-opacity=".5"/>
+          <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="fBlur"><feGaussianBlur stdDeviation="9"/></filter>
+      </defs>
+
+      <ellipse id="glow" cx="290" cy="150" rx="210" ry="120" fill="url(#gGlow)" opacity="0"/>
+      <ellipse cx="290" cy="368" rx="196" ry="30" fill="var(--h-ground)" filter="url(#fBlur)"/>
+
+      <!-- fios pontilhados + fluxo animado -->
+      <path class="wire" id="w-sol"  d="M225,150 L150,104 L72,104"/>
+      <path class="wire" id="w-casa" d="M243,306 L152,344 L72,344"/>
+      <path class="wire" id="w-rede" d="M418,286 L474,318 L520,318"/>
+      <path class="flux" id="f-sol"  d="M225,150 L150,104 L72,104" stroke="var(--sol)"  style="display:none"/>
+      <path class="flux" id="f-casa" d="M243,306 L152,344 L72,344" stroke="var(--casa)" style="display:none"/>
+      <path class="flux" id="f-rede" d="M418,286 L474,318 L520,318" stroke="var(--exp)" style="display:none"/>
+
+      <!-- casa isométrica -->
+      <g id="house">
+        <polygon points="150,190 290,260 290,360 150,290" fill="var(--h-left)"/>
+        <polygon points="290,260 430,190 430,290 290,360" fill="var(--h-right)"/>
+        <polygon points="290,120 430,190 290,260 150,190" fill="url(#gRoof)"/>
+        <g id="panels"></g>
+        <g id="windows"></g>
+        <!-- inversor -->
+        <polygon points="332,244 352,234 352,258 332,268" fill="var(--h-right)" stroke="var(--h-edge)" stroke-width="1"/>
+        <circle cx="342" cy="248" r="3.4" fill="var(--sol)" opacity=".9"/>
+        <!-- medidor -->
+        <polygon points="382,268 400,259 400,283 382,292" fill="var(--h-right)" stroke="var(--h-edge)" stroke-width="1"/>
+        <circle cx="391" cy="272" r="3" fill="var(--exp)" id="mled"/>
+        <polyline points="150,190 290,260 430,190" fill="none" stroke="var(--h-edge)" stroke-width="1.2"/>
+        <line x1="290" y1="260" x2="290" y2="360" stroke="var(--h-edge)" stroke-width="1.2"/>
+      </g>
+
+      <!-- rótulos -->
+      <text class="lbl" x="72" y="76" text-anchor="start">SOLAR</text>
+      <text class="val" x="72" y="97" text-anchor="start" id="n-sol">—<tspan> W</tspan></text>
+      <text class="lbl" x="72" y="366" text-anchor="start">CASA</text>
+      <text class="val" x="72" y="387" text-anchor="start" id="n-casa">—<tspan> W</tspan></text>
+      <text class="lbl" x="520" y="340" text-anchor="end" id="l-rede">REDE</text>
+      <text class="val" x="520" y="361" text-anchor="end" id="n-rede">—<tspan> W</tspan></text>
+    </svg>
+  </div>
 
   <div class="self">
     <div class="top">
@@ -135,43 +216,7 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
       <span><i class="sq" style="background:#f87171"></i>Rede <b id="a-rw">—</b></span>
       <span style="margin-left:auto">Consumo total <b id="a-tw">—</b></span>
     </div>
-  </div>
-
-  <div class="flow">
-    <svg viewBox="0 0 500 235">
-      <path class="pipe" stroke="var(--sol)"  d="M92 40 Q250 -8 408 40"/>
-      <path class="pipe" stroke="var(--sol)"  d="M110 72 H250 V120"/>
-      <path class="pipe" stroke="var(--imp)"  d="M390 72 H250 V120"/>
-      <path class="pipe" stroke="var(--casa)" d="M250 120 V168"/>
-      <path class="dash" id="d-inj"  stroke="var(--exp)"  d="M92 40 Q250 -8 408 40" style="display:none"/>
-      <path class="dash" id="d-sol"  stroke="var(--sol)"  d="M110 72 H250 V120" style="display:none"/>
-      <path class="dash" id="d-imp"  stroke="var(--imp)"  d="M390 72 H250 V120" style="display:none"/>
-      <path class="dash" id="d-casa" stroke="var(--casa)" d="M250 120 V168" style="display:none"/>
-
-      <text class="fp exp"  id="t-inj" x="250" y="10"  text-anchor="middle">—</text>
-      <text class="fp sol"  id="t-sol" x="172" y="64"  text-anchor="middle">—</text>
-      <text class="fp imp"  id="t-imp" x="330" y="64"  text-anchor="middle">—</text>
-
-      <g transform="translate(60,72)">
-        <circle r="30" fill="#1b2438" stroke="var(--sol)" stroke-width="2"/>
-        <text y="6" text-anchor="middle" font-size="26">☀️</text>
-        <text class="fl" y="52" text-anchor="middle">Solar</text>
-        <text class="fv" id="v-sol" y="74" text-anchor="middle">—</text>
-      </g>
-      <g transform="translate(440,72)">
-        <circle r="30" fill="#1b2438" stroke="var(--imp)" stroke-width="2" id="c-rede"/>
-        <text y="6" text-anchor="middle" font-size="24">🔌</text>
-        <text class="fl" y="52" text-anchor="middle" id="l-rede">Rede</text>
-        <text class="fv" id="v-rede" y="74" text-anchor="middle">—</text>
-      </g>
-      <g transform="translate(250,185)">
-        <circle r="32" fill="#1b2438" stroke="var(--casa)" stroke-width="2"/>
-        <text y="7" text-anchor="middle" font-size="26">🏠</text>
-        <text class="fl" y="56" text-anchor="middle">Casa</text>
-        <text class="fv" id="v-casa" y="78" text-anchor="middle">—</text>
-      </g>
-    </svg>
-    <div class="jan" id="janela">—</div>
+    <div class="nota" id="janela">—</div>
   </div>
 
   <div class="grid">
@@ -209,10 +254,9 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
   <div class="tw card" style="padding:10px 14px"><table><thead><tr>
     <th>Fase</th><th>Tensão</th><th>Corrente</th><th>Potência</th></tr></thead>
     <tbody id="fases"></tbody></table>
-    <div class="jan" style="text-align:left;margin:10px 2px 2px">
-      O medidor informa só a intensidade de cada fase, sem o sentido. Como o inversor é
-      monofásico, uma fase pode estar injetando enquanto outra puxa da rede — por isso este
-      total costuma ser maior que o fluxo líquido mostrado acima.</div>
+    <div class="nota">O medidor informa só a intensidade de cada fase, sem o sentido. Como o inversor
+      é monofásico, uma fase pode estar injetando enquanto outra puxa da rede — por isso este total
+      costuma ser maior que o fluxo líquido mostrado acima.</div>
   </div>
 </section>
 
@@ -263,14 +307,21 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 </section>
 </div>
 
+<nav class="dock" id="dock" style="display:none">
+  <span class="ind" id="ind"></span>
+  <button class="on" data-t="agora">⚡ Agora</button>
+  <button data-t="solar">☀️ Solar</button>
+  <button data-t="hist">📊 Histórico</button>
+</nav>
+
 <script>
 const API="https://grublhqnezkjxtztanwc.supabase.co/functions/v1/energia";
 let K=localStorage.getItem("ek")||"";
-
 const $=s=>document.querySelector(s);
 const nf=(n,d=0)=>Number(n||0).toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
 const brl=n=>"R$ "+nf(n,2);
 const setv=(id,v,u)=>$(id).innerHTML=v+(u?`<small>${u}</small>`:"");
+const svgv=(id,v)=>$(id).innerHTML=v+'<tspan> W</tspan>';
 
 async function api(p){
   const r=await fetch(`${API}/${p}${p.includes("?")?"&":"?"}k=${encodeURIComponent(K)}`);
@@ -279,30 +330,82 @@ async function api(p){
   return r.json();
 }
 
-async function entrar(e){
-  e.preventDefault(); K=$("#pw").value.trim(); $("#gerr").textContent="";
-  try{ await api("api/meter"); localStorage.setItem("ek",K); abrir(); }
-  catch(_){ $("#gerr").textContent="Senha incorreta"; }
+/* ---------- tema ---------- */
+function aplicarTema(t){
+  document.documentElement.dataset.theme=t;
+  $("#theme").textContent=t==="dark"?"🌙":"☀️";
+  $("#mtheme").content=t==="dark"?"#0b1120":"#eef2f9";
+  localStorage.setItem("tema",t);
+  aplicarCoresChart(); redesenhar();
 }
-function abrir(){ $("#gate").style.display="none"; $("#app").style.display="block"; iniciar(); }
+$("#theme").onclick=()=>aplicarTema(document.documentElement.dataset.theme==="dark"?"light":"dark");
+aplicarTema(localStorage.getItem("tema")||"dark");
 
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b));
+/* ---------- dock ---------- */
+function moverInd(){
+  const b=document.querySelector(".dock button.on"); if(!b) return;
+  $("#ind").style.left=b.offsetLeft+"px"; $("#ind").style.width=b.offsetWidth+"px";
+}
+document.querySelectorAll(".dock button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".dock button").forEach(x=>x.classList.toggle("on",x===b));
   document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("on",s.id==="t-"+b.dataset.t));
+  moverInd(); window.scrollTo({top:0,behavior:"smooth"});
   if(b.dataset.t==="solar") carregarSolar().catch(()=>{});
   if(b.dataset.t==="hist") carregarHist().catch(()=>{});
 });
+addEventListener("resize",moverInd);
 
-Chart.defaults.color="#8a99b8";
-Chart.defaults.borderColor="#26314a";
-Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,sans-serif";
-const charts={};
+/* ---------- casa isométrica ---------- */
+const P0=[290,120], U=[140,70], V=[-140,70];
+const pt=(s,t)=>[P0[0]+U[0]*s+V[0]*t, P0[1]+U[1]*s+V[1]*t];
+function montarCasa(){
+  const g=[]; const N=4, M=3, ins=.07, gap=.16;
+  for(let i=0;i<N;i++) for(let j=0;j<M;j++){
+    const s0=ins+(1-2*ins)*(i+gap/2)/N, s1=ins+(1-2*ins)*(i+1-gap/2)/N;
+    const t0=ins+(1-2*ins)*(j+gap/2)/M, t1=ins+(1-2*ins)*(j+1-gap/2)/M;
+    const p=[pt(s0,t0),pt(s1,t0),pt(s1,t1),pt(s0,t1)].map(q=>q.map(n=>n.toFixed(1)).join(",")).join(" ");
+    g.push(`<polygon class="pan" points="${p}" fill="url(#gPan)"/>`);
+  }
+  $("#panels").innerHTML=g.join("");
+
+  // janelas nas duas paredes
+  const jan=[];
+  const par=(o,al,s0,s1,d0,d1)=>{
+    const P=(s,d)=>[o[0]+al[0]*s, o[1]+al[1]*s+d];
+    return [P(s0,d0),P(s1,d0),P(s1,d1),P(s0,d1)].map(q=>q.map(n=>n.toFixed(1)).join(",")).join(" ");
+  };
+  const E=[150,190], AE=[140,70];   // parede esquerda
+  const D=[290,260], AD=[140,-70];  // parede direita
+  [[.12,.34],[.44,.66],[.76,.94]].forEach(([a,b])=>{
+    jan.push(`<polygon class="win" points="${par(E,AE,a,b,18,46)}" fill="var(--h-win)" opacity=".85"/>`);
+    jan.push(`<polygon class="win" points="${par(E,AE,a,b,56,80)}" fill="var(--h-win)" opacity=".55"/>`);
+  });
+  [[.10,.28],[.36,.54]].forEach(([a,b])=>{
+    jan.push(`<polygon class="win" points="${par(D,AD,a,b,16,44)}" fill="var(--h-win)" opacity=".8"/>`);
+    jan.push(`<polygon class="win" points="${par(D,AD,a,b,54,78)}" fill="var(--h-win)" opacity=".5"/>`);
+  });
+  $("#windows").innerHTML=jan.join("");
+}
+montarCasa();
+
+/* ---------- gráficos ---------- */
+const charts={}; let ultOrigem=null, ultCurva=null, ultDias=null, ultMeses=null;
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function aplicarCoresChart(){
+  Chart.defaults.color=cssv("--dim");
+  Chart.defaults.borderColor=cssv("--line");
+  Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,sans-serif";
+}
 function draw(id,cfg){ charts[id]?.destroy(); charts[id]=new Chart($(id),cfg); }
 const legenda={legend:{labels:{boxWidth:11,boxHeight:11,usePointStyle:true,pointStyle:"circle",padding:14}}};
+function redesenhar(){
+  if(ultOrigem) desenharOrigem(ultOrigem);
+  if(ultCurva) desenharCurva(ultCurva);
+  if(ultDias&&ultMeses) desenharHist(ultDias,ultMeses);
+}
 
-/* ---------- tempo real (5s) ---------- */
+/* ---------- tempo real ---------- */
 let capacidade=5.004, tarifa=0.8261;
-
 function pintarLive(L){
   $("#dot").classList.remove("off"); $("#dot").classList.add("beat");
   setTimeout(()=>$("#dot").classList.remove("beat"),500);
@@ -310,37 +413,32 @@ function pintarLive(L){
 
   const ger=L.geracao_w||0, imp=L.importado_w||0, inj=L.injetado_w||0;
   const casa=L.casa_w||0, sw=L.casa_solar_w||0, rw=L.casa_rede_w||0;
+  const exp=inj>imp;
 
-  // ---- autossuficiência
+  // cena
+  svgv("#n-sol",nf(ger)); svgv("#n-casa",nf(casa)); svgv("#n-rede",nf(Math.abs(L.rede_w||0)));
+  $("#l-rede").textContent=exp?"INJETANDO":"DA REDE";
+  $("#f-rede").setAttribute("stroke",exp?"var(--exp)":"var(--imp)");
+  $("#f-rede").setAttribute("d",exp?"M418,286 L474,318 L520,318":"M520,318 L474,318 L418,286");
+  $("#f-sol").style.display=ger>5?"":"none";
+  $("#f-casa").style.display=casa>5?"":"none";
+  $("#f-rede").style.display=(imp+inj)>5?"":"none";
+  $("#glow").setAttribute("opacity",Math.min(.9,ger/(capacidade*1000)).toFixed(2));
+  document.querySelectorAll("#panels .pan").forEach(p=>
+    p.setAttribute("opacity",(.45+.55*Math.min(1,ger/(capacidade*1000))).toFixed(2)));
+  $("#mled").setAttribute("fill",exp?"var(--exp)":"var(--imp)");
+
+  // autossuficiência
   $("#a-pc").textContent=L.autossuficiencia+"%";
   $("#a-pc").className="pc "+(L.autossuficiencia>=50?"sol":"imp");
   const tot=Math.max(1,sw+rw);
-  $("#a-s").style.width=(100*sw/tot)+"%";
-  $("#a-r").style.width=(100*rw/tot)+"%";
-  $("#a-sw").textContent=nf(sw)+" W";
-  $("#a-rw").textContent=nf(rw)+" W";
-  $("#a-tw").textContent=nf(casa)+" W";
-
-  // ---- diagrama: os três fluxos podem coexistir (inversor monofásico)
-  $("#v-sol").textContent=nf(ger)+" W";
-  $("#v-casa").textContent=nf(casa)+" W";
-  $("#t-sol").textContent=sw>5?nf(sw)+" W":"";
-  $("#t-inj").textContent=inj>5?"↑ "+nf(inj)+" W":"";
-  $("#t-imp").textContent=imp>5?nf(imp)+" W":"";
-  $("#d-sol").style.display=sw>5?"":"none";
-  $("#d-inj").style.display=inj>5?"":"none";
-  $("#d-imp").style.display=imp>5?"":"none";
-  $("#d-casa").style.display=casa>5?"":"none";
-  const exp=inj>imp;
-  $("#l-rede").textContent=exp?"Injetando":"Da rede";
-  $("#v-rede").textContent=nf(Math.abs(L.rede_w||0))+" W";
-  const cor=exp?"var(--exp)":"var(--imp)";
-  $("#c-rede").setAttribute("stroke",cor);
+  $("#a-s").style.width=(100*sw/tot)+"%"; $("#a-r").style.width=(100*rw/tot)+"%";
+  $("#a-sw").textContent=nf(sw)+" W"; $("#a-rw").textContent=nf(rw)+" W"; $("#a-tw").textContent=nf(casa)+" W";
   $("#janela").textContent=L.fluxo_ok
-    ? `fluxos medidos pelos contadores de energia · janela de ${Math.round((L.janela_s||0)/60)||4} min · fases ao vivo`
-    : "calibrando a medição de fluxo…";
+    ? `Fluxos calculados pelos contadores de energia numa janela de ${Math.max(4,Math.round((L.janela_s||240)/60))} min. As fases atualizam ao vivo a cada 5 s.`
+    : "Calibrando a medição de fluxo…";
 
-  // ---- cards
+  // cards
   const pct=Math.min(100,100*ger/(capacidade*1000));
   setv("#k-ger",nf(ger),"W"); $("#b-ger").style.width=pct+"%";
   $("#k-gerp").textContent=nf(pct,0)+"% de "+nf(capacidade,3)+" kWp";
@@ -364,29 +462,26 @@ function pintarLive(L){
 }
 
 function pintarHoje(d){
-  const h=d.hoje;
-  tarifa=d.live?.price||tarifa;
+  const h=d.hoje; tarifa=d.live?.price||tarifa;
   setv("#h-ger",nf(h.geracao,1),"kWh"); $("#h-gerbrl").textContent=brl(d.economia);
   setv("#h-casa",nf(h.casa,1),"kWh");
   $("#h-casas").textContent=`${nf(h.casa_solar,1)} do sol + ${nf(h.casa_rede,1)} da rede`;
   setv("#h-self",h.autossuficiencia,"%"); $("#b-self").style.width=h.autossuficiencia+"%";
-  setv("#h-inj",nf(h.injetado,1),"kWh");
-  setv("#h-imp",nf(h.importado,1),"kWh");
+  setv("#h-inj",nf(h.injetado,1),"kWh"); setv("#h-imp",nf(h.importado,1),"kWh");
   if(d.curva?.length){
-    desenharCurva(d.curva);
+    ultCurva=d.curva; desenharCurva(d.curva);
     const hoje=new Date(Date.now()-108e5).toISOString().slice(0,10);
     $("#lb-curva").textContent=d.curva_dia===hoje?"Curva de geração de hoje"
       :`Curva de geração — ${d.curva_dia.slice(8,10)}/${d.curva_dia.slice(5,7)}`;
   }
-  ultimoToday=d;
 }
-let ultimoToday=null;
 
 function desenharOrigem(a){
+  ultOrigem=a;
   draw("#c-origem",{type:"line",data:{labels:a.map(x=>x.t),datasets:[
-    {label:"Do sol",data:a.map(x=>x.solar),borderColor:"#fbbf24",backgroundColor:"rgba(251,191,36,.35)",
+    {label:"Do sol",data:a.map(x=>x.solar),borderColor:cssv("--sol"),backgroundColor:"rgba(251,191,36,.35)",
       fill:true,tension:.3,pointRadius:0,borderWidth:1.5},
-    {label:"Da rede",data:a.map(x=>x.rede),borderColor:"#f87171",backgroundColor:"rgba(248,113,113,.35)",
+    {label:"Da rede",data:a.map(x=>x.rede),borderColor:cssv("--imp"),backgroundColor:"rgba(248,113,113,.35)",
       fill:true,tension:.3,pointRadius:0,borderWidth:1.5}]},
     options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
       plugins:{...legenda,tooltip:{callbacks:{
@@ -395,18 +490,17 @@ function desenharOrigem(a){
       scales:{x:{ticks:{maxTicksLimit:9,autoSkip:true}},
         y:{stacked:true,beginAtZero:true,title:{display:true,text:"W"}}}}});
 }
-
 function desenharCurva(c){
+  ultCurva=c;
   draw("#c-curva",{type:"line",data:{labels:c.map(x=>x.t),datasets:[{
-    label:"Geração (W)",data:c.map(x=>x.w),borderColor:"#fbbf24",
-    backgroundColor:"rgba(251,191,36,.14)",fill:true,tension:.35,pointRadius:0,borderWidth:2}]},
+    label:"Geração (W)",data:c.map(x=>x.w),borderColor:cssv("--sol"),
+    backgroundColor:"rgba(251,191,36,.16)",fill:true,tension:.35,pointRadius:0,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false},
       tooltip:{callbacks:{label:i=>nf(i.parsed.y)+" W"}}},
       scales:{x:{ticks:{maxTicksLimit:9,autoSkip:true}},
         y:{beginAtZero:true,ticks:{callback:v=>nf(v/1000,1)+"k"}}}}});
 }
 
-/* ---------- ABA SOLAR ---------- */
 async function carregarSolar(){
   const d=await api("api/inverter"); const p=d.planta;
   capacidade=p.capacity_kwp||capacidade; tarifa=p.price||tarifa;
@@ -415,34 +509,34 @@ async function carregarSolar(){
   setv("#s-mon",nf(p.month_kwh,1),"kWh"); $("#s-monbrl").textContent=brl(p.month_kwh*tarifa);
   setv("#s-all",nf(p.all_kwh/1000,3),"MWh"); $("#s-allbrl").textContent=brl(p.all_kwh*tarifa);
   setv("#s-year",nf(p.year_kwh,0),"kWh");
-  d.strings.forEach((s,i)=>{
-    setv(`#i-s${i+1}`,nf(s.w),"W");
-    $(`#i-s${i+1}d`).textContent=`${nf(s.u,1)} V · ${nf(s.i,1)} A`;
-  });
+  d.strings.forEach((s,i)=>{ setv(`#i-s${i+1}`,nf(s.w),"W");
+    $(`#i-s${i+1}d`).textContent=`${nf(s.u,1)} V · ${nf(s.i,1)} A`; });
   setv("#i-t",nf(d.temp,1),"°C");
   $("#i-state").textContent={1:"Gerando normalmente",2:"Em repouso",3:"Alerta ativo"}[d.state]||"—";
   setv("#i-ac",nf(d.ac.u,1),"V"); $("#i-acd").textContent=`${nf(d.ac.i,1)} A · ${nf(d.fac,2)} Hz`;
   $("#i-sn").textContent="SN "+d.sn;
 }
 
-/* ---------- ABA HISTÓRICO ---------- */
 let histOk=false;
 async function carregarHist(){
   if(histOk) return; histOk=true;
   const [dias,meses]=await Promise.all([api("api/daily?days=30"),api("api/monthly?months=14")]);
+  desenharHist(dias,meses);
+}
+function desenharHist(dias,meses){
+  ultDias=dias; ultMeses=meses;
   const lb=d=>d.day.slice(8,10)+"/"+d.day.slice(5,7);
-
+  const cores=[cssv("--sol"),cssv("--casa"),cssv("--exp"),cssv("--imp")];
   draw("#c-dia",{type:"bar",data:{labels:dias.map(lb),datasets:[
-    {label:"Geração",data:dias.map(d=>d.geracao),backgroundColor:"#fbbf24"},
-    {label:"Consumo da casa",data:dias.map(d=>d.casa),backgroundColor:"#38bdf8"},
-    {label:"Injetado",data:dias.map(d=>d.injetado),backgroundColor:"#34d399"},
-    {label:"Da rede",data:dias.map(d=>d.importado),backgroundColor:"#f87171"}]},
+    {label:"Geração",data:dias.map(d=>d.geracao),backgroundColor:cores[0]},
+    {label:"Consumo da casa",data:dias.map(d=>d.casa),backgroundColor:cores[1]},
+    {label:"Injetado",data:dias.map(d=>d.injetado),backgroundColor:cores[2]},
+    {label:"Da rede",data:dias.map(d=>d.importado),backgroundColor:cores[3]}]},
     options:{maintainAspectRatio:false,plugins:legenda,
       scales:{y:{beginAtZero:true,title:{display:true,text:"kWh"}}}}});
 
-  const selfCell=v=>v==null?'<span style="color:#4b5878">—</span>'
+  const selfCell=v=>v==null?'<span style="opacity:.4">—</span>'
     :`<span class="mini"><i style="width:${v}%"></i></span>${v}%`;
-
   $("#tb-dia").innerHTML=[...dias].reverse().map(d=>
     `<tr><td>${lb(d)}${d.geracao_estimada?'<span class="pill">est.</span>':""}</td>
       <td class="sol">${nf(d.geracao,1)}</td><td class="casa">${nf(d.casa,1)}</td>
@@ -452,14 +546,14 @@ async function carregarHist(){
   const M=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
   const ml=m=>M[+m.mes.slice(5,7)-1]+"/"+m.mes.slice(2,4);
   draw("#c-mes",{type:"bar",data:{labels:meses.map(ml),datasets:[
-    {label:"Geração",data:meses.map(m=>m.geracao),backgroundColor:"#fbbf24"},
-    {label:"Consumo da casa",data:meses.map(m=>m.casa),backgroundColor:"#38bdf8"},
-    {label:"Injetado",data:meses.map(m=>m.injetado),backgroundColor:"#34d399"},
-    {label:"Da rede",data:meses.map(m=>m.importado),backgroundColor:"#f87171"}]},
+    {label:"Geração",data:meses.map(m=>m.geracao),backgroundColor:cores[0]},
+    {label:"Consumo da casa",data:meses.map(m=>m.casa),backgroundColor:cores[1]},
+    {label:"Injetado",data:meses.map(m=>m.injetado),backgroundColor:cores[2]},
+    {label:"Da rede",data:meses.map(m=>m.importado),backgroundColor:cores[3]}]},
     options:{maintainAspectRatio:false,plugins:legenda,
       scales:{y:{beginAtZero:true,title:{display:true,text:"kWh"}}}}});
 
-  const dash=v=>v==null?'<span style="color:#4b5878">—</span>':nf(v,1);
+  const dash=v=>v==null?'<span style="opacity:.4">—</span>':nf(v,1);
   $("#tb-mes").innerHTML=[...meses].reverse().map(m=>
     `<tr><td>${ml(m)}${m.parcial?'<span class="pill">parcial</span>':""}</td>
      <td class="sol">${nf(m.geracao,1)}</td><td class="casa">${dash(m.casa)}</td>
@@ -467,26 +561,30 @@ async function carregarHist(){
      <td>${selfCell(m.autossuficiencia)}</td></tr>`).join("");
 }
 
-/* ---------- ciclos ---------- */
-async function tickRapido(){                 // 5s — medidor Tuya
+/* ---------- login e ciclos ---------- */
+async function entrar(e){
+  e.preventDefault(); K=$("#pw").value.trim(); $("#gerr").textContent="";
+  try{ await api("api/meter"); localStorage.setItem("ek",K); abrir(); }
+  catch(_){ $("#gerr").textContent="Senha incorreta"; }
+}
+function abrir(){
+  $("#gate").style.display="none"; $("#app").style.display="block"; $("#dock").style.display="flex";
+  requestAnimationFrame(moverInd); iniciar();
+}
+async function tickRapido(){
   try{ pintarLive(await api("api/meter")); }
   catch(e){ if(String(e.message)==="401"){localStorage.removeItem("ek");location.reload();}
     $("#dot").classList.add("off"); }
 }
-async function tickLento(){                  // 60s — solar + totais do dia
+async function tickLento(){
   try{
     pintarHoje(await api("api/today"));
     const o=await api("api/origem"); if(o.length) desenharOrigem(o);
     if($("#t-solar").classList.contains("on")) await carregarSolar();
   }catch(_){}
 }
-function iniciar(){
-  tickRapido(); tickLento();
-  setInterval(tickRapido,5000);
-  setInterval(tickLento,60000);
-}
+function iniciar(){ tickRapido(); tickLento(); setInterval(tickRapido,5000); setInterval(tickLento,60000); }
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden){tickRapido();tickLento();} });
-
 if(K) api("api/meter").then(abrir).catch(()=>localStorage.removeItem("ek"));
 </script>
 </body>
