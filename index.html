@@ -339,7 +339,7 @@ function aplicarTema(t){
   aplicarCoresChart(); redesenhar();
 }
 $("#theme").onclick=()=>aplicarTema(document.documentElement.dataset.theme==="dark"?"light":"dark");
-aplicarTema(localStorage.getItem("tema")||"dark");
+/* chamada inicial fica no fim do script (evita TDZ de charts/cssv) */
 
 /* ---------- dock ---------- */
 function moverInd(){
@@ -392,7 +392,6 @@ function montarCasa(){
   });
   setSVG($("#windows"), jan.join(""));
 }
-montarCasa();
 
 /* ---------- gráficos ---------- */
 const charts={}; let ultOrigem=null, ultCurva=null, ultDias=null, ultMeses=null;
@@ -591,6 +590,8 @@ async function tickLento(){
 }
 function iniciar(){ tickRapido(); tickLento(); setInterval(tickRapido,5000); setInterval(tickLento,60000); }
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden){tickRapido();tickLento();} });
+aplicarTema(localStorage.getItem("tema")||"dark");
+montarCasa();
 if(K) api("api/meter").then(abrir).catch(()=>localStorage.removeItem("ek"));
 </script>
 </body>
