@@ -20,8 +20,11 @@ body{background:var(--bg);color:var(--txt);font:15px/1.5 -apple-system,BlinkMacS
 
 header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--exp);box-shadow:0 0 10px var(--exp);flex:none}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--exp);box-shadow:0 0 10px var(--exp);flex:none;
+  transition:.3s}
 .dot.off{background:var(--imp);box-shadow:0 0 10px var(--imp)}
+.dot.beat{animation:beat .5s}
+@keyframes beat{50%{transform:scale(2.1);opacity:.5}}
 .stamp{margin-left:auto;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
 
 nav{display:flex;gap:6px;background:var(--card);padding:5px;border-radius:14px;margin-bottom:18px;overflow-x:auto}
@@ -36,19 +39,34 @@ nav button.on{background:var(--card2);color:var(--txt);box-shadow:0 1px 3px #000
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
 .card h3{font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
-.big{font-size:30px;font-weight:700;letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1.1}
+.big{font-size:30px;font-weight:700;letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1.1;
+  transition:color .3s}
 .big small{font-size:14px;font-weight:500;color:var(--dim);margin-left:3px;letter-spacing:0}
 .sub{font-size:12.5px;color:var(--dim);margin-top:5px}
+.brl{font-size:15px;font-weight:600;color:var(--exp);margin-top:6px;font-variant-numeric:tabular-nums}
+
+/* card de autossuficiência */
+.self{background:linear-gradient(160deg,#1a2338,#141c2c);border:1px solid var(--line);
+  border-radius:18px;padding:18px;margin-bottom:12px}
+.self .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.self .pc{font-size:44px;font-weight:750;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums}
+.self .lb{font-size:13px;color:var(--dim);font-weight:500}
+.split{display:flex;height:13px;border-radius:8px;overflow:hidden;margin:14px 0 10px;background:#26314a}
+.split i{display:block;height:100%;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.split .s{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
+.split .r{background:linear-gradient(90deg,#f87171,#ef4444)}
+.leg{display:flex;gap:18px;font-size:12.5px;flex-wrap:wrap}
+.leg span{display:flex;align-items:center;gap:6px;color:var(--dim)}
+.leg b{color:var(--txt);font-variant-numeric:tabular-nums}
+.sq{width:9px;height:9px;border-radius:3px;flex:none}
 
 /* diagrama de fluxo */
 .flow{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 16px;margin-bottom:12px}
 .flow svg{width:100%;max-width:520px;display:block;margin:0 auto;overflow:visible}
 .fl{font:600 13px -apple-system,sans-serif;fill:var(--txt)}
 .fv{font:700 17px -apple-system,sans-serif;fill:var(--txt);font-variant-numeric:tabular-nums}
-.fu{font:500 11px -apple-system,sans-serif;fill:var(--dim)}
 .pipe{stroke-width:5;fill:none;stroke-linecap:round;opacity:.18}
-.dash{stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:1 14;
-  animation:run 1.1s linear infinite}
+.dash{stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:1 14;animation:run 1.1s linear infinite}
 @keyframes run{to{stroke-dashoffset:-15}}
 
 table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
@@ -59,6 +77,9 @@ td{text-align:right;padding:9px 6px;border-bottom:1px solid #1e2740}
 tbody tr:last-child td{border:0}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .pill{font-size:10.5px;padding:1px 6px;border-radius:20px;background:#334155;color:var(--dim);margin-left:5px}
+.mini{display:inline-block;width:42px;height:6px;border-radius:4px;background:#26314a;overflow:hidden;
+  vertical-align:middle;margin-right:6px}
+.mini i{display:block;height:100%;background:var(--sol)}
 .chart{position:relative;height:230px}
 .chart.tall{height:290px}
 h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px}
@@ -72,7 +93,7 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
   background:var(--bg);color:var(--txt);font-size:16px;text-align:center}
 #gate button{width:100%;padding:12px;border:0;border-radius:10px;background:#2563eb;color:#fff;font:600 15px inherit;cursor:pointer}
 .err{color:var(--imp);font-size:12.5px;margin-top:10px;min-height:16px}
-@media(max-width:520px){.wrap{padding:12px}.big{font-size:26px}}
+@media(max-width:520px){.wrap{padding:12px}.big{font-size:26px}.self .pc{font-size:38px}}
 </style>
 </head>
 <body>
@@ -99,6 +120,20 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 
 <!-- ================= AGORA ================= -->
 <section class="tab on" id="t-agora">
+
+  <div class="self">
+    <div class="top">
+      <span class="pc" id="a-pc">—</span>
+      <span class="lb">do consumo da casa vindo do <b class="sol">sol</b> agora</span>
+    </div>
+    <div class="split"><i class="s" id="a-s" style="width:0"></i><i class="r" id="a-r" style="width:0"></i></div>
+    <div class="leg">
+      <span><i class="sq" style="background:#fbbf24"></i>Solar <b id="a-sw">—</b></span>
+      <span><i class="sq" style="background:#f87171"></i>Rede <b id="a-rw">—</b></span>
+      <span style="margin-left:auto">Consumo total <b id="a-tw">—</b></span>
+    </div>
+  </div>
+
   <div class="flow">
     <svg viewBox="0 0 500 220">
       <path class="pipe" id="p1" stroke="var(--sol)"  d="M110 62 H250 V110"/>
@@ -133,27 +168,35 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
     <div class="card"><h3>Gerando agora</h3>
       <div class="big sol" id="k-ger">—<small>W</small></div>
       <div class="bar"><i id="b-ger" style="background:var(--sol);width:0"></i></div>
-      <div class="sub" id="k-gerp">— % da capacidade</div></div>
+      <div class="sub" id="k-gerp">—</div></div>
     <div class="card"><h3>Consumo da casa</h3>
       <div class="big casa" id="k-casa">—<small>W</small></div>
       <div class="sub" id="k-auto">—</div></div>
     <div class="card"><h3 id="h-rede">Rede</h3>
       <div class="big" id="k-rede">—<small>W</small></div>
       <div class="sub" id="k-redes">—</div></div>
+    <div class="card"><h3>Aproveitamento da geração</h3>
+      <div class="big" id="k-apr">—<small>%</small></div>
+      <div class="sub" id="k-aprs">—</div></div>
   </div>
 
-  <h2 class="sec">Hoje</h2>
+  <h2 class="sec">Consumo da casa por origem — hoje</h2>
+  <div class="card"><div class="chart tall"><canvas id="c-origem"></canvas></div></div>
+
+  <h2 class="sec">Balanço de hoje</h2>
   <div class="grid">
-    <div class="card"><h3>Geração</h3><div class="big sol" id="h-ger">—<small>kWh</small></div></div>
-    <div class="card"><h3>Consumo da casa</h3><div class="big casa" id="h-casa">—<small>kWh</small></div></div>
+    <div class="card"><h3>Geração</h3><div class="big sol" id="h-ger">—<small>kWh</small></div>
+      <div class="brl" id="h-gerbrl">—</div></div>
+    <div class="card"><h3>Consumo da casa</h3><div class="big casa" id="h-casa">—<small>kWh</small></div>
+      <div class="sub" id="h-casas">—</div></div>
+    <div class="card"><h3>Autossuficiência do dia</h3><div class="big" id="h-self">—<small>%</small></div>
+      <div class="bar"><i id="b-self" style="background:var(--sol);width:0"></i></div></div>
     <div class="card"><h3>Injetado na rede</h3><div class="big exp" id="h-inj">—<small>kWh</small></div></div>
     <div class="card"><h3>Consumido da rede</h3><div class="big imp" id="h-imp">—<small>kWh</small></div></div>
-    <div class="card"><h3>Economia estimada</h3><div class="big" id="h-eco">—</div>
-      <div class="sub">tarifa R$ 0,8261/kWh</div></div>
   </div>
 
   <h2 class="sec">Fases do medidor</h2>
-  <div class="tw"><table><thead><tr>
+  <div class="tw card" style="padding:10px 14px"><table><thead><tr>
     <th>Fase</th><th>Tensão</th><th>Corrente</th><th>Potência</th></tr></thead>
     <tbody id="fases"></tbody></table></div>
 </section>
@@ -161,13 +204,14 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 <!-- ================= SOLAR ================= -->
 <section class="tab" id="t-solar">
   <div class="grid">
-    <div class="card"><h3>Potência agora</h3><div class="big sol" id="s-now">—<small>W</small></div>
-      <div class="sub" id="s-state">—</div></div>
-    <div class="card"><h3>Hoje</h3><div class="big" id="s-day">—<small>kWh</small></div></div>
-    <div class="card"><h3>Este mês</h3><div class="big" id="s-mon">—<small>kWh</small></div></div>
-    <div class="card"><h3>Este ano</h3><div class="big" id="s-year">—<small>kWh</small></div></div>
-    <div class="card"><h3>Desde a instalação</h3><div class="big" id="s-all">—<small>MWh</small></div>
-      <div class="sub" id="s-allr">—</div></div>
+    <div class="card"><h3>Potência</h3><div class="big sol" id="s-now">—<small>W</small></div>
+      <div class="sub" id="s-cap">—</div></div>
+    <div class="card"><h3>Produção diária</h3><div class="big" id="s-day">—<small>kWh</small></div>
+      <div class="brl" id="s-daybrl">—</div></div>
+    <div class="card"><h3>Produção mensal</h3><div class="big" id="s-mon">—<small>kWh</small></div>
+      <div class="brl" id="s-monbrl">—</div></div>
+    <div class="card"><h3>Produção total</h3><div class="big" id="s-all">—<small>MWh</small></div>
+      <div class="brl" id="s-allbrl">—</div></div>
   </div>
 
   <h2 class="sec" id="lb-curva">Curva de geração de hoje</h2>
@@ -179,10 +223,11 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
       <div class="sub" id="i-s1d">—</div></div>
     <div class="card"><h3>String 2</h3><div class="big" id="i-s2">—<small>W</small></div>
       <div class="sub" id="i-s2d">—</div></div>
-    <div class="card"><h3>Temperatura</h3><div class="big" id="i-t">—<small>°C</small></div></div>
+    <div class="card"><h3>Temperatura</h3><div class="big" id="i-t">—<small>°C</small></div>
+      <div class="sub" id="i-state">—</div></div>
     <div class="card"><h3>Saída CA</h3><div class="big" id="i-ac">—<small>V</small></div>
       <div class="sub" id="i-acd">—</div></div>
-    <div class="card"><h3>Sistema</h3><div class="big" id="i-cap">—<small>kWp</small></div>
+    <div class="card"><h3>Este ano</h3><div class="big" id="s-year">—<small>kWh</small></div>
       <div class="sub" id="i-sn">—</div></div>
   </div>
 </section>
@@ -192,13 +237,13 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
   <h2 class="sec">Últimos 30 dias</h2>
   <div class="card"><div class="chart tall"><canvas id="c-dia"></canvas></div></div>
   <div class="tw card" style="margin-top:12px;padding:10px 14px"><table><thead><tr>
-    <th>Dia</th><th>Geração</th><th>Casa</th><th>Injetado</th><th>Da rede</th><th>Saldo</th>
+    <th>Dia</th><th>Geração</th><th>Casa</th><th>Injetado</th><th>Da rede</th><th>Autossuf.</th>
   </tr></thead><tbody id="tb-dia"></tbody></table></div>
 
   <h2 class="sec">Comparativo mensal</h2>
   <div class="card"><div class="chart tall"><canvas id="c-mes"></canvas></div></div>
   <div class="tw card" style="margin-top:12px;padding:10px 14px"><table><thead><tr>
-    <th>Mês</th><th>Geração</th><th>Casa</th><th>Injetado</th><th>Da rede</th>
+    <th>Mês</th><th>Geração</th><th>Casa</th><th>Injetado</th><th>Da rede</th><th>Autossuf.</th>
   </tr></thead><tbody id="tb-mes"></tbody></table></div>
 </section>
 </div>
@@ -219,23 +264,20 @@ async function api(p){
   return r.json();
 }
 
-/* ---------- login ---------- */
 async function entrar(e){
   e.preventDefault(); K=$("#pw").value.trim(); $("#gerr").textContent="";
-  try{ await api("api/live"); localStorage.setItem("ek",K); abrir(); }
+  try{ await api("api/meter"); localStorage.setItem("ek",K); abrir(); }
   catch(_){ $("#gerr").textContent="Senha incorreta"; }
 }
 function abrir(){ $("#gate").style.display="none"; $("#app").style.display="block"; iniciar(); }
 
-/* ---------- navegação ---------- */
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b));
   document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("on",s.id==="t-"+b.dataset.t));
-  if(b.dataset.t==="solar") carregarSolar();
-  if(b.dataset.t==="hist") carregarHist();
+  if(b.dataset.t==="solar") carregarSolar().catch(()=>{});
+  if(b.dataset.t==="hist") carregarHist().catch(()=>{});
 });
 
-/* ---------- gráficos ---------- */
 Chart.defaults.color="#8a99b8";
 Chart.defaults.borderColor="#26314a";
 Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,sans-serif";
@@ -243,59 +285,91 @@ const charts={};
 function draw(id,cfg){ charts[id]?.destroy(); charts[id]=new Chart($(id),cfg); }
 const legenda={legend:{labels:{boxWidth:11,boxHeight:11,usePointStyle:true,pointStyle:"circle",padding:14}}};
 
-/* ---------- ABA AGORA ---------- */
-let capacidade=5.004;
-async function carregarAgora(){
-  const d=await api("api/today");
-  const L=d.live, h=d.hoje;
+/* ---------- tempo real (5s) ---------- */
+let capacidade=5.004, tarifa=0.8261;
 
-  $("#dot").className="dot"+(L.geracao_w>0||L.rede_w!==0?"":" off");
+function pintarLive(L){
+  $("#dot").classList.remove("off"); $("#dot").classList.add("beat");
+  setTimeout(()=>$("#dot").classList.remove("beat"),500);
   $("#stamp").textContent=new Date(L.ts).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
 
+  // ---- card autossuficiência
+  const casa=L.casa_w||0, sw=L.casa_solar_w||0, rw=L.casa_rede_w||0;
+  $("#a-pc").textContent=L.autossuficiencia+"%";
+  $("#a-pc").className="pc "+(L.autossuficiencia>=50?"sol":"imp");
+  const tot=Math.max(1,sw+rw);
+  $("#a-s").style.width=(100*sw/tot)+"%";
+  $("#a-r").style.width=(100*rw/tot)+"%";
+  $("#a-sw").textContent=nf(sw)+" W";
+  $("#a-rw").textContent=nf(rw)+" W";
+  $("#a-tw").textContent=nf(casa)+" W";
+
+  // ---- diagrama
   const exp=L.exportando, redeAbs=Math.abs(L.rede_w);
-  // diagrama
   $("#v-sol").textContent=nf(L.geracao_w)+" W";
-  $("#v-casa").textContent=nf(L.casa_w)+" W";
+  $("#v-casa").textContent=nf(casa)+" W";
   $("#v-rede").textContent=nf(redeAbs)+" W";
   $("#l-rede").textContent=exp?"Injetando":"Da rede";
   const cor=exp?"var(--exp)":"var(--imp)";
-  $("#c-rede").setAttribute("stroke",cor); $("#p2").setAttribute("stroke",cor);
-  $("#d2").setAttribute("stroke",cor);
+  $("#c-rede").setAttribute("stroke",cor); $("#p2").setAttribute("stroke",cor); $("#d2").setAttribute("stroke",cor);
   $("#d1").style.display=L.geracao_w>5?"":"none";
   $("#d2").style.display=redeAbs>5?"":"none";
-  // fluxo da rede: importando entra (rede→casa), exportando sai (casa→rede)
-  $("#d2").setAttribute("d", exp ? "M250 110 V62 H390" : "M390 62 H250 V110");
-  $("#d3").style.display=L.casa_w>5?"":"none";
+  $("#d2").setAttribute("d",exp?"M250 110 V62 H390":"M390 62 H250 V110");
+  $("#d3").style.display=casa>5?"":"none";
 
-  // cards
+  // ---- cards
   const pct=Math.min(100,100*L.geracao_w/(capacidade*1000));
   setv("#k-ger",nf(L.geracao_w),"W"); $("#b-ger").style.width=pct+"%";
-  $("#k-gerp").textContent=nf(pct,0)+"% de "+nf(capacidade,2)+" kWp";
-  setv("#k-casa",nf(L.casa_w),"W");
-  $("#k-auto").textContent=L.geracao_w>0
-    ? `${L.autoconsumo_pct}% vindo do sol`
-    : "100% vindo da rede";
+  $("#k-gerp").textContent=nf(pct,0)+"% de "+nf(capacidade,3)+" kWp";
+  setv("#k-casa",nf(casa),"W");
+  $("#k-auto").textContent=rw>0&&sw>0 ? `${nf(sw)} W do sol + ${nf(rw)} W da rede`
+    : rw>0 ? "100% da rede" : "100% do sol";
   $("#h-rede").textContent=exp?"Injetando na rede":"Consumindo da rede";
   $("#k-rede").className="big "+(exp?"exp":"imp");
   setv("#k-rede",nf(redeAbs),"W");
   $("#k-redes").textContent=exp?"excedente exportado":"complemento importado";
-
-  setv("#h-ger",nf(h.geracao,1),"kWh");
-  setv("#h-casa",nf(h.casa,1),"kWh");
-  setv("#h-inj",nf(h.injetado,1),"kWh");
-  setv("#h-imp",nf(h.importado,1),"kWh");
-  $("#h-eco").textContent=brl(d.economia);
+  setv("#k-apr",L.aproveitamento,"%");
+  $("#k-aprs").textContent=L.geracao_w>0
+    ? `${nf(sw)} W ficam em casa, ${nf(L.injetado_w)} W vão pra rede` : "sem geração agora";
 
   $("#fases").innerHTML=["a","b","c"].map(k=>{
     const f=L.fases[k];
     return `<tr><td><b>${k.toUpperCase()}</b></td><td>${nf(f.v,1)} V</td>
       <td>${nf(f.a,2)} A</td><td><b>${nf(f.w)} W</b></td></tr>`;
   }).join("")+`<tr><td><b>Total</b></td><td></td><td></td><td><b>${nf(L.medidor_w)} W</b></td></tr>`;
+}
 
-  if(d.curva?.length){ desenharCurva(d.curva);
-    $("#lb-curva").textContent = d.curva_dia===new Date(Date.now()-108e5).toISOString().slice(0,10)
-      ? "Curva de geração de hoje"
-      : "Curva de geração — "+d.curva_dia.slice(8,10)+"/"+d.curva_dia.slice(5,7); }
+function pintarHoje(d){
+  const h=d.hoje;
+  tarifa=d.live?.price||tarifa;
+  setv("#h-ger",nf(h.geracao,1),"kWh"); $("#h-gerbrl").textContent=brl(d.economia);
+  setv("#h-casa",nf(h.casa,1),"kWh");
+  $("#h-casas").textContent=`${nf(h.casa_solar,1)} do sol + ${nf(h.casa_rede,1)} da rede`;
+  setv("#h-self",h.autossuficiencia,"%"); $("#b-self").style.width=h.autossuficiencia+"%";
+  setv("#h-inj",nf(h.injetado,1),"kWh");
+  setv("#h-imp",nf(h.importado,1),"kWh");
+  if(d.curva?.length){
+    desenharCurva(d.curva);
+    const hoje=new Date(Date.now()-108e5).toISOString().slice(0,10);
+    $("#lb-curva").textContent=d.curva_dia===hoje?"Curva de geração de hoje"
+      :`Curva de geração — ${d.curva_dia.slice(8,10)}/${d.curva_dia.slice(5,7)}`;
+  }
+  ultimoToday=d;
+}
+let ultimoToday=null;
+
+function desenharOrigem(a){
+  draw("#c-origem",{type:"line",data:{labels:a.map(x=>x.t),datasets:[
+    {label:"Do sol",data:a.map(x=>x.solar),borderColor:"#fbbf24",backgroundColor:"rgba(251,191,36,.35)",
+      fill:true,tension:.3,pointRadius:0,borderWidth:1.5},
+    {label:"Da rede",data:a.map(x=>x.rede),borderColor:"#f87171",backgroundColor:"rgba(248,113,113,.35)",
+      fill:true,tension:.3,pointRadius:0,borderWidth:1.5}]},
+    options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+      plugins:{...legenda,tooltip:{callbacks:{
+        label:i=>` ${i.dataset.label}: ${nf(i.parsed.y)} W`,
+        footer:it=>"Total: "+nf(it.reduce((a,b)=>a+b.parsed.y,0))+" W"}}},
+      scales:{x:{ticks:{maxTicksLimit:9,autoSkip:true}},
+        y:{stacked:true,beginAtZero:true,title:{display:true,text:"W"}}}}});
 }
 
 function desenharCurva(c){
@@ -309,24 +383,22 @@ function desenharCurva(c){
 }
 
 /* ---------- ABA SOLAR ---------- */
-let solarOk=false;
 async function carregarSolar(){
-  const d=await api("api/inverter"); const p=d.planta; capacidade=p.capacity_kwp||capacidade;
-  setv("#s-now",nf(p.w||d.w),"W");
-  $("#s-state").textContent={1:"Gerando normalmente",2:"Inversor em repouso",3:"Alerta ativo"}[d.state]||"—";
-  setv("#s-day",nf(p.day_kwh,1),"kWh");
-  setv("#s-mon",nf(p.month_kwh,1),"kWh");
+  const d=await api("api/inverter"); const p=d.planta;
+  capacidade=p.capacity_kwp||capacidade; tarifa=p.price||tarifa;
+  setv("#s-now",nf(p.w||d.w),"W"); $("#s-cap").textContent=nf(capacidade,3)+" kWp instalados";
+  setv("#s-day",nf(p.day_kwh,1),"kWh"); $("#s-daybrl").textContent=brl(p.day_kwh*tarifa);
+  setv("#s-mon",nf(p.month_kwh,1),"kWh"); $("#s-monbrl").textContent=brl(p.month_kwh*tarifa);
+  setv("#s-all",nf(p.all_kwh/1000,3),"MWh"); $("#s-allbrl").textContent=brl(p.all_kwh*tarifa);
   setv("#s-year",nf(p.year_kwh,0),"kWh");
-  setv("#s-all",nf(p.all_kwh/1000,2),"MWh");
-  $("#s-allr").textContent=brl(p.all_kwh*p.price)+" gerados";
   d.strings.forEach((s,i)=>{
     setv(`#i-s${i+1}`,nf(s.w),"W");
     $(`#i-s${i+1}d`).textContent=`${nf(s.u,1)} V · ${nf(s.i,1)} A`;
   });
   setv("#i-t",nf(d.temp,1),"°C");
+  $("#i-state").textContent={1:"Gerando normalmente",2:"Em repouso",3:"Alerta ativo"}[d.state]||"—";
   setv("#i-ac",nf(d.ac.u,1),"V"); $("#i-acd").textContent=`${nf(d.ac.i,1)} A · ${nf(d.fac,2)} Hz`;
-  setv("#i-cap",nf(capacidade,3),"kWp"); $("#i-sn").textContent="SN "+d.sn;
-  if(!solarOk){ solarOk=true; api("api/today").then(x=>x.curva?.length&&desenharCurva(x.curva)); }
+  $("#i-sn").textContent="SN "+d.sn;
 }
 
 /* ---------- ABA HISTÓRICO ---------- */
@@ -334,8 +406,8 @@ let histOk=false;
 async function carregarHist(){
   if(histOk) return; histOk=true;
   const [dias,meses]=await Promise.all([api("api/daily?days=30"),api("api/monthly?months=14")]);
-
   const lb=d=>d.day.slice(8,10)+"/"+d.day.slice(5,7);
+
   draw("#c-dia",{type:"bar",data:{labels:dias.map(lb),datasets:[
     {label:"Geração",data:dias.map(d=>d.geracao),backgroundColor:"#fbbf24"},
     {label:"Consumo da casa",data:dias.map(d=>d.casa),backgroundColor:"#38bdf8"},
@@ -344,13 +416,14 @@ async function carregarHist(){
     options:{maintainAspectRatio:false,plugins:legenda,
       scales:{y:{beginAtZero:true,title:{display:true,text:"kWh"}}}}});
 
-  $("#tb-dia").innerHTML=[...dias].reverse().map(d=>{
-    const s=d.injetado-d.importado;
-    return `<tr><td>${lb(d)}${d.geracao_estimada?'<span class="pill">est.</span>':""}</td>
+  const selfCell=v=>v==null?'<span style="color:#4b5878">—</span>'
+    :`<span class="mini"><i style="width:${v}%"></i></span>${v}%`;
+
+  $("#tb-dia").innerHTML=[...dias].reverse().map(d=>
+    `<tr><td>${lb(d)}${d.geracao_estimada?'<span class="pill">est.</span>':""}</td>
       <td class="sol">${nf(d.geracao,1)}</td><td class="casa">${nf(d.casa,1)}</td>
       <td class="exp">${nf(d.injetado,1)}</td><td class="imp">${nf(d.importado,1)}</td>
-      <td class="${s>=0?"exp":"imp"}">${s>=0?"+":""}${nf(s,1)}</td></tr>`;
-  }).join("");
+      <td>${selfCell(d.autossuficiencia)}</td></tr>`).join("");
 
   const M=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
   const ml=m=>M[+m.mes.slice(5,7)-1]+"/"+m.mes.slice(2,4);
@@ -366,19 +439,31 @@ async function carregarHist(){
   $("#tb-mes").innerHTML=[...meses].reverse().map(m=>
     `<tr><td>${ml(m)}${m.parcial?'<span class="pill">parcial</span>':""}</td>
      <td class="sol">${nf(m.geracao,1)}</td><td class="casa">${dash(m.casa)}</td>
-     <td class="exp">${dash(m.injetado)}</td><td class="imp">${dash(m.importado)}</td></tr>`).join("");
+     <td class="exp">${dash(m.injetado)}</td><td class="imp">${dash(m.importado)}</td>
+     <td>${selfCell(m.autossuficiencia)}</td></tr>`).join("");
 }
 
-/* ---------- ciclo ---------- */
-async function tick(){
-  try{ await carregarAgora(); }
+/* ---------- ciclos ---------- */
+async function tickRapido(){                 // 5s — medidor Tuya
+  try{ pintarLive(await api("api/meter")); }
   catch(e){ if(String(e.message)==="401"){localStorage.removeItem("ek");location.reload();}
-    $("#dot").className="dot off"; }
+    $("#dot").classList.add("off"); }
 }
-function iniciar(){ tick(); setInterval(tick,10000); carregarSolar().catch(()=>{}); }
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden) tick(); });
+async function tickLento(){                  // 60s — solar + totais do dia
+  try{
+    pintarHoje(await api("api/today"));
+    const o=await api("api/origem"); if(o.length) desenharOrigem(o);
+    if($("#t-solar").classList.contains("on")) await carregarSolar();
+  }catch(_){}
+}
+function iniciar(){
+  tickRapido(); tickLento();
+  setInterval(tickRapido,5000);
+  setInterval(tickLento,60000);
+}
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden){tickRapido();tickLento();} });
 
-if(K) api("api/live").then(abrir).catch(()=>localStorage.removeItem("ek"));
+if(K) api("api/meter").then(abrir).catch(()=>localStorage.removeItem("ek"));
 </script>
 </body>
 </html>
