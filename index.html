@@ -33,6 +33,13 @@ canvas{background:var(--card);border:1px solid var(--br);border-radius:12px;padd
 #login button{padding:12px 18px;border-radius:8px;border:0;background:#238636;color:#fff;font-size:1rem}
 #app{display:none}
 .pill{display:inline-block;font-size:.7rem;color:var(--mut);border:1px solid var(--br);border-radius:20px;padding:2px 8px;margin-left:6px}
+.tab{margin-top:10px;background:var(--card);border:1px solid var(--br);border-radius:12px;overflow:hidden}
+.tab table{width:100%;border-collapse:collapse;font-size:.85rem}
+.tab th{color:var(--mut);font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;text-align:right;padding:9px 12px;border-bottom:1px solid var(--br);font-weight:500}
+.tab th:first-child,.tab td:first-child{text-align:left}
+.tab td{padding:9px 12px;border-bottom:1px solid var(--br)}
+.tab tr:last-child td{border-bottom:0}
+.tab .pc{font-size:.68rem;color:var(--mut);margin-left:4px}
 </style></head><body>
 <div id="login"><input id="pw" type="password" placeholder="senha" autocomplete="current-password"><button onclick="enter()">Entrar</button></div>
 <div id="app">
@@ -60,6 +67,10 @@ canvas{background:var(--card);border:1px solid var(--br);border-radius:12px;padd
 
 <h2>Solar × consumo por dia</h2>
 <canvas id="chD" height="150"></canvas>
+
+<h2>Histórico mensal<span class="pill" id="mpill"></span></h2>
+<canvas id="chM" height="150"></canvas>
+<div id="mtab" class="tab"></div>
 
 <div class="upd" id="upd">carregando…</div>
 </div>
@@ -99,7 +110,7 @@ async function resumo(){try{
  hs.innerHTML=U(s.hoje.saldo,'kWh',2); hs.className='val '+(s.hoje.saldo>=0?'grn':'red');
  if(s.mes.desde)document.querySelector('h2').innerHTML='Resumo de hoje';
 }catch(e){}}
-let cP,cD;
+let cP,cD,cM;
 const OPT={responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#8b949e',boxWidth:12,font:{size:11}}}},scales:{x:{ticks:{color:'#8b949e',maxTicksLimit:7,font:{size:10}},grid:{color:'#21262d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'}}}};
 async function graficos(){try{
  const ph=await H('api/phases?hours=24');
@@ -110,6 +121,22 @@ async function graficos(){try{
   {label:'Fase C',data:ph.map(r=>r.wc),borderColor:CORES[2],borderWidth:1.6,tension:.3,pointRadius:0},
   {label:'Total',data:ph.map(r=>r.w_total),borderColor:'#e6edf3',borderWidth:2,borderDash:[4,3],tension:.3,pointRadius:0}
  ]},options:{...OPT,scales:{...OPT.scales,y:{...OPT.scales.y,title:{display:true,text:'W',color:'#8b949e'}}}}});
+ const m=await H('api/monthly?months=12');
+ const MN=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+ const mlab=r=>MN[Number(r.mes.slice(5,7))-1]+'/'+r.mes.slice(2,4);
+ cM?.destroy();cM=new Chart(chM,{type:'bar',data:{labels:m.map(mlab),datasets:[
+  {label:'Consumo',data:m.map(r=>r.consumo),backgroundColor:'#58a6ff'},
+  {label:'Injetado (solar)',data:m.map(r=>r.injetado),backgroundColor:'#d29922'},
+  {label:'Saldo',type:'line',data:m.map(r=>r.saldo),borderColor:'#3fb950',borderWidth:2,tension:.3,pointRadius:3}
+ ]},options:{...OPT,scales:{...OPT.scales,y:{...OPT.scales.y,title:{display:true,text:'kWh',color:'#8b949e'}}}}});
+ const par=m.find(r=>r.parcial);
+ mpill.textContent=par?`mês atual parcial · ${par.dias} dia${par.dias>1?'s':''} medido${par.dias>1?'s':''}`:'';
+ mtab.innerHTML='<table><tr><th>Mês</th><th>Consumo</th><th>Solar</th><th>Saldo</th></tr>'+
+  m.slice().reverse().map(r=>`<tr><td>${mlab(r)}${r.parcial?'<span class="pc">parcial</span>':''}</td>
+   <td class="blu">${F(r.consumo,1)}</td><td class="sol">${F(r.injetado,1)}</td>
+   <td class="${r.saldo>=0?'grn':'red'}"><b>${r.saldo>=0?'+':''}${F(r.saldo,1)}</b></td></tr>`).join('')+
+  (par&&par.proj_consumo?`<tr><td style="color:var(--mut)">projeção ${mlab(par)}</td><td class="blu" style="opacity:.6">${F(par.proj_consumo,0)}</td><td class="sol" style="opacity:.6">${F(par.proj_injetado,0)}</td><td style="opacity:.6" class="${par.proj_injetado-par.proj_consumo>=0?'grn':'red'}">${par.proj_injetado-par.proj_consumo>=0?'+':''}${F(par.proj_injetado-par.proj_consumo,0)}</td></tr>`:'')+
+  '</table>';
  const d=await H('api/daily?days=30');
  const DL=d.map(r=>r.day.slice(8,10)+'/'+r.day.slice(5,7));
  cD?.destroy();cD=new Chart(chD,{type:'bar',data:{labels:DL,datasets:[
