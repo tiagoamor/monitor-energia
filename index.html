@@ -170,7 +170,7 @@ h2.sec{font-size:14px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
       <div class="sub" id="s-allr">—</div></div>
   </div>
 
-  <h2 class="sec">Curva de geração de hoje</h2>
+  <h2 class="sec" id="lb-curva">Curva de geração de hoje</h2>
   <div class="card"><div class="chart tall"><canvas id="c-curva"></canvas></div></div>
 
   <h2 class="sec">Inversor</h2>
@@ -292,7 +292,10 @@ async function carregarAgora(){
       <td>${nf(f.a,2)} A</td><td><b>${nf(f.w)} W</b></td></tr>`;
   }).join("")+`<tr><td><b>Total</b></td><td></td><td></td><td><b>${nf(L.medidor_w)} W</b></td></tr>`;
 
-  if(d.curva?.length) desenharCurva(d.curva);
+  if(d.curva?.length){ desenharCurva(d.curva);
+    $("#lb-curva").textContent = d.curva_dia===new Date(Date.now()-108e5).toISOString().slice(0,10)
+      ? "Curva de geração de hoje"
+      : "Curva de geração — "+d.curva_dia.slice(8,10)+"/"+d.curva_dia.slice(5,7); }
 }
 
 function desenharCurva(c){
