@@ -2,28 +2,75 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { md5 } from "npm:js-md5@0.8.3";
 
-const TUYA_ID = Deno.env.get("TUYA_ID")!;
-const TUYA_KEY = Deno.env.get("TUYA_KEY")!;
-const DEVICE = Deno.env.get("TUYA_DEVICE") ?? "ebf044024a1733288b8ymb";
 const APP_PASSWORD = Deno.env.get("APP_PASSWORD") ?? "";
-const TUYA_BASE = "https://openapi.tuyaus.com";
-
-const SOLIS_ID = Deno.env.get("SOLIS_KEY_ID")!;
-const SOLIS_SECRET = Deno.env.get("SOLIS_KEY_SECRET")!;
-const SOLIS_BASE = Deno.env.get("SOLIS_BASE") ?? "https://www.soliscloud.com:13333";
-const STATION = Deno.env.get("SOLIS_STATION") ?? "1298491919449463897";
-const INVERTER = Deno.env.get("SOLIS_INVERTER") ?? "1308675217948814297";
-const INVERTER_SN = Deno.env.get("SOLIS_INVERTER_SN") ?? "1801150241200499";
 
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "content-type",
+  "access-control-allow-methods": "GET, POST, OPTIONS",
 };
 
 const sb = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
+
+/* ---------- configuracao ----------
+   As credenciais ficam na tabela kv (chave "config"), editaveis pela tela de
+   Ajustes. As variaveis de ambiente continuam valendo como valor inicial,
+   para nao quebrar instalacoes existentes.                                   */
+type Cred = {
+  tuya: { id: string; key: string; device: string; base: string };
+  solis: { id: string; secret: string; base: string; station: string; inverter: string; sn: string };
+  auth: { salt: string; hash: string } | null;
+  rev: number;
+};
+
+const PADRAO = (): Cred => ({
+  tuya: {
+    id: Deno.env.get("TUYA_ID") ?? "",
+    key: Deno.env.get("TUYA_KEY") ?? "",
+    device: Deno.env.get("TUYA_DEVICE") ?? "",
+    base: Deno.env.get("TUYA_BASE") ?? "https://openapi.tuyaus.com",
+  },
+  solis: {
+    id: Deno.env.get("SOLIS_KEY_ID") ?? "",
+    secret: Deno.env.get("SOLIS_KEY_SECRET") ?? "",
+    base: Deno.env.get("SOLIS_BASE") ?? "https://www.soliscloud.com:13333",
+    station: Deno.env.get("SOLIS_STATION") ?? "",
+    inverter: Deno.env.get("SOLIS_INVERTER") ?? "",
+    sn: Deno.env.get("SOLIS_INVERTER_SN") ?? "",
+  },
+  auth: null,
+  rev: 0,
+});
+
+let cfgCache: { v: Cred; exp: number } | null = null;
+
+async function cfg(): Promise<Cred> {
+  if (cfgCache && Date.now() < cfgCache.exp) return cfgCache.v;
+  const base = PADRAO();
+  const hit = await kvGet("config").catch(() => null);
+  const g = (hit?.v ?? {}) as Partial<Cred>;
+  const v: Cred = {
+    tuya: { ...base.tuya, ...(g.tuya ?? {}) },
+    solis: { ...base.solis, ...(g.solis ?? {}) },
+    auth: g.auth ?? null,
+    rev: Number(g.rev ?? 0),
+  };
+  cfgCache = { v, exp: Date.now() + 15_000 };
+  return v;
+}
+
+async function salvarCfg(v: Cred) {
+  v.rev = (v.rev ?? 0) + 1;
+  await kvSet("config", v);
+  cfgCache = { v, exp: Date.now() + 15_000 };
+  // credenciais novas invalidam token e leituras em cache
+  await sb.from("kv").delete().in("k", ["tuya_token", "solar", "fluxo"]);
+  cache.clear();
+  tuyaToken = null;
+}
 
 /* ---------- utilidades ---------- */
 const b64 = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf)));
@@ -75,13 +122,15 @@ async function cached<T>(key: string, ttlMs: number, fn: () => Promise<T>): Prom
 /* ---------- Tuya ---------- */
 let tuyaToken: { token: string; exp: number } | null = null;
 
-async function tuyaCall(method: string, path: string, token = ""): Promise<any> {
+async function tuyaCall(method: string, path: string, token = "", cred?: Cred["tuya"]): Promise<any> {
+  const c = cred ?? (await cfg()).tuya;
+  if (!c.id || !c.key) throw new Error("Tuya sem credenciais: configure em Ajustes");
   const t = Date.now().toString();
   const body = await sha256hex("");
-  const sign = hex(await hmac("SHA-256", TUYA_KEY, TUYA_ID + token + t + `${method}\n${body}\n\n${path}`)).toUpperCase();
-  const headers: Record<string, string> = { client_id: TUYA_ID, t, sign, sign_method: "HMAC-SHA256" };
+  const sign = hex(await hmac("SHA-256", c.key, c.id + token + t + `${method}\n${body}\n\n${path}`)).toUpperCase();
+  const headers: Record<string, string> = { client_id: c.id, t, sign, sign_method: "HMAC-SHA256" };
   if (token) headers.access_token = token;
-  const r = await fetch(TUYA_BASE + path, { method, headers });
+  const r = await fetch(c.base + path, { method, headers });
   return await r.json();
 }
 
@@ -111,7 +160,9 @@ function decodePhase(s: string) {
 
 async function readMeter() {
   const tok = await tuyaAuth();
-  const st = await tuyaCall("GET", `/v1.0/devices/${DEVICE}/status`, tok);
+  const dev = (await cfg()).tuya.device;
+  if (!dev) throw new Error("Tuya sem dispositivo: configure em Ajustes");
+  const st = await tuyaCall("GET", `/v1.0/devices/${dev}/status`, tok);
   if (!st.success) throw new Error("tuya status: " + st.msg);
   const dp: Record<string, any> = {};
   for (const d of st.result) dp[d.code] = d.value;
@@ -130,19 +181,21 @@ async function readMeter() {
 }
 
 /* ---------- SolisCloud ---------- */
-async function solis(path: string, body: Record<string, unknown>): Promise<any> {
+async function solis(path: string, body: Record<string, unknown>, cred?: Cred["solis"]): Promise<any> {
+  const c = cred ?? (await cfg()).solis;
+  if (!c.id || !c.secret) throw new Error("SolisCloud sem credenciais: configure em Ajustes");
   const bs = JSON.stringify(body);
   const contentMd5 = b64(md5.arrayBuffer(bs));
   const date = new Date().toUTCString();
   const toSign = `POST\n${contentMd5}\napplication/json\n${date}\n${path}`;
-  const sig = b64(await hmac("SHA-1", SOLIS_SECRET, toSign));
-  const r = await fetch(SOLIS_BASE + path, {
+  const sig = b64(await hmac("SHA-1", c.secret, toSign));
+  const r = await fetch(c.base + path, {
     method: "POST",
     headers: {
       "Content-MD5": contentMd5,
       "Content-Type": "application/json",
       "Date": date,
-      "Authorization": `API ${SOLIS_ID}:${sig}`,
+      "Authorization": `API ${c.id}:${sig}`,
     },
     body: bs,
   });
@@ -151,7 +204,7 @@ async function solis(path: string, body: Record<string, unknown>): Promise<any> 
 
 async function solarFetch() {
   {
-    const r = await solis("/v1/api/stationDetail", { id: STATION });
+    const r = await solis("/v1/api/stationDetail", { id: (await cfg()).solis.station });
     const d = r?.data ?? {};
     const unit = String(d.powerStr ?? "kW");
     const mult = unit === "MW" ? 1e6 : unit === "W" ? 1 : 1000;
@@ -172,8 +225,9 @@ async function solarFetch() {
 async function solarNow() { return await kvSWR("solar", 60_000, solarFetch); }
 
 async function inverterNow() {
-  return await cached("inv", 60_000, async () => {
-    const r = await solis("/v1/api/inverterDetail", { id: INVERTER, sn: INVERTER_SN });
+  const sc = (await cfg()).solis;
+  return await cached(`inv_${sc.inverter}_${sc.sn}`, 60_000, async () => {
+    const r = await solis("/v1/api/inverterDetail", { id: sc.inverter, sn: sc.sn });
     const d = r?.data ?? {};
     const pacUnit = String(d.pacStr ?? "kW");
     return {
@@ -190,15 +244,16 @@ async function inverterNow() {
       ],
       ac: { u: Number(d.uAc1 ?? 0), i: Number(d.iAc1 ?? 0) },
       updated: d.dataTimestampStr ?? null,
-      sn: INVERTER_SN,
+      sn: sc.sn,
     };
   });
 }
 
 // curva intradiária de geração (144 pontos)
 async function solarCurve(day: string) {
-  return await cached("curve_" + day, 5 * 60_000, async () => {
-    const r = await solis("/v1/api/stationDay", { id: STATION, money: "BRL", time: day, timeZone: -3 });
+  const st = (await cfg()).solis.station;
+  return await cached(`curve_${st}_${day}`, 5 * 60_000, async () => {
+    const r = await solis("/v1/api/stationDay", { id: st, money: "BRL", time: day, timeZone: -3 });
     const arr = Array.isArray(r?.data) ? r.data : [];
     return arr.map((x: any) => ({ t: x.timeStr?.slice(0, 5) ?? "", w: Math.round(Number(x.power ?? 0)) }))
       .filter((x: any) => x.t);
@@ -207,8 +262,9 @@ async function solarCurve(day: string) {
 
 // geração diária do mês  -> { "YYYY-MM-DD": kWh }
 async function solarMonth(month: string): Promise<Record<string, number>> {
-  return await cached("smonth_" + month, 15 * 60_000, async () => {
-    const r = await solis("/v1/api/stationMonth", { id: STATION, money: "BRL", month, timeZone: -3 });
+  const st = (await cfg()).solis.station;
+  return await cached(`smonth_${st}_${month}`, 15 * 60_000, async () => {
+    const r = await solis("/v1/api/stationMonth", { id: st, money: "BRL", month, timeZone: -3 });
     const out: Record<string, number> = {};
     for (const x of (Array.isArray(r?.data) ? r.data : [])) out[x.dateStr] = Number(x.energy ?? 0);
     return out;
@@ -217,8 +273,9 @@ async function solarMonth(month: string): Promise<Record<string, number>> {
 
 // geração mensal do ano -> { "YYYY-MM": kWh }
 async function solarYear(year: string): Promise<Record<string, number>> {
-  return await cached("syear_" + year, 60 * 60_000, async () => {
-    const r = await solis("/v1/api/stationYear", { id: STATION, money: "BRL", year, timeZone: -3 });
+  const st = (await cfg()).solis.station;
+  return await cached(`syear_${st}_${year}`, 60 * 60_000, async () => {
+    const r = await solis("/v1/api/stationYear", { id: st, money: "BRL", year, timeZone: -3 });
     const out: Record<string, number> = {};
     for (const x of (Array.isArray(r?.data) ? r.data : [])) out[x.dateStr] = Number(x.energy ?? 0);
     return out;
@@ -472,7 +529,34 @@ async function origemSerie(opts: { day?: string; horas?: number }) {
 }
 
 /* ---------- HTTP ---------- */
-const authed = (url: URL) => !APP_PASSWORD || url.searchParams.get("k") === APP_PASSWORD;
+// A senha fica no banco como PBKDF2-SHA256 (nunca em claro). Enquanto ninguem
+// tiver definido uma, vale a variavel de ambiente APP_PASSWORD.
+async function derivar(senha: string, salt: string) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(senha), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt: new TextEncoder().encode(salt), iterations: 120_000, hash: "SHA-256" }, k, 256);
+  return hex(bits);
+}
+const novoSalt = () => hex(crypto.getRandomValues(new Uint8Array(16)).buffer);
+
+// comparacao em tempo constante
+function igual(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let d = 0;
+  for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return d === 0;
+}
+
+async function conferirSenha(senha: string | null): Promise<boolean> {
+  const c = await cfg();
+  if (c.auth) {
+    if (!senha) return false;
+    return igual(await derivar(senha, c.auth.salt), c.auth.hash);
+  }
+  if (!APP_PASSWORD) return true;
+  return !!senha && igual(senha, APP_PASSWORD);
+}
+const authed = (url: URL) => conferirSenha(url.searchParams.get("k"));
 const json = (v: unknown, status = 200) =>
   new Response(JSON.stringify(v), { status, headers: { "content-type": "application/json", ...CORS } });
 
@@ -485,7 +569,7 @@ Deno.serve(async (req) => {
 
   try {
     if (req.method === "POST" && p === "api/collect") {
-      if (!isCron && !authed(url)) return json({ error: "unauthorized" }, 401);
+      if (!isCron && !(await authed(url))) return json({ error: "unauthorized" }, 401);
       const s = await readMeter();
       let gen = 0;
       try { gen = (await solarNow()).w; } catch { /* solar opcional */ }
@@ -501,7 +585,7 @@ Deno.serve(async (req) => {
     }
 
     if (req.method === "POST" && p === "api/snapshot") {
-      if (!isCron && !authed(url)) return json({ error: "unauthorized" }, 401);
+      if (!isCron && !(await authed(url))) return json({ error: "unauthorized" }, 401);
       const s = await readMeter();
       const { error } = await sb.from("energy_daily")
         .upsert({ day: brtToday(), fwd_start: s.fwd_kwh, rev_start: s.rev_kwh }, { onConflict: "day" });
@@ -509,7 +593,77 @@ Deno.serve(async (req) => {
       return json({ ok: true, day: brtToday() });
     }
 
-    if (!authed(url)) return json({ error: "unauthorized" }, 401);
+    if (!(await authed(url))) return json({ error: "unauthorized" }, 401);
+
+    /* ---------- configuracao ---------- */
+    // nunca devolve segredo em claro: so os ultimos 4 caracteres
+    const mascara = (v: string) => (v ? "••••" + v.slice(-4) : "");
+
+    if (p === "api/config" && req.method === "GET") {
+      const c = await cfg();
+      return json({
+        tuya: { id: c.tuya.id, key: mascara(c.tuya.key), device: c.tuya.device, base: c.tuya.base },
+        solis: { id: c.solis.id, secret: mascara(c.solis.secret), base: c.solis.base,
+                 station: c.solis.station, inverter: c.solis.inverter, sn: c.solis.sn },
+        senha_definida: !!c.auth,
+        completo: !!(c.tuya.id && c.tuya.key && c.tuya.device),
+        solar_ok: !!(c.solis.id && c.solis.secret && c.solis.station),
+      });
+    }
+
+    if (p === "api/config" && req.method === "POST") {
+      const b = await req.json().catch(() => ({})) as any;
+      const c = await cfg();
+      // campo em branco ou mascarado mantem o valor atual
+      const mant = (novo: unknown, atual: string) => {
+        const v = typeof novo === "string" ? novo.trim() : "";
+        return !v || v.startsWith("••••") ? atual : v;
+      };
+      const nova: Cred = {
+        tuya: {
+          id: mant(b?.tuya?.id, c.tuya.id),
+          key: mant(b?.tuya?.key, c.tuya.key),
+          device: mant(b?.tuya?.device, c.tuya.device),
+          base: mant(b?.tuya?.base, c.tuya.base) || "https://openapi.tuyaus.com",
+        },
+        solis: {
+          id: mant(b?.solis?.id, c.solis.id),
+          secret: mant(b?.solis?.secret, c.solis.secret),
+          base: mant(b?.solis?.base, c.solis.base) || "https://www.soliscloud.com:13333",
+          station: mant(b?.solis?.station, c.solis.station),
+          inverter: mant(b?.solis?.inverter, c.solis.inverter),
+          sn: mant(b?.solis?.sn, c.solis.sn),
+        },
+        auth: c.auth,
+        rev: c.rev,
+      };
+      await salvarCfg(nova);
+      return json({ ok: true });
+    }
+
+    if (p === "api/password" && req.method === "POST") {
+      const b = await req.json().catch(() => ({})) as any;
+      const nova = String(b?.nova ?? "");
+      if (nova.length < 8) return json({ error: "A senha precisa de pelo menos 8 caracteres" }, 400);
+      const c = await cfg();
+      const salt = novoSalt();
+      await salvarCfg({ ...c, auth: { salt, hash: await derivar(nova, salt) } });
+      return json({ ok: true });
+    }
+
+    // testa as credenciais salvas e diz exatamente o que falhou
+    if (p === "api/test") {
+      const out: Record<string, unknown> = {};
+      try {
+        const m = await readMeter();
+        out.tuya = { ok: true, w_total: m.w_total, importado_kwh: m.fwd_kwh, injetado_kwh: m.rev_kwh };
+      } catch (e) { out.tuya = { ok: false, erro: String((e as Error).message ?? e) }; }
+      try {
+        const sN = await solarFetch();
+        out.solis = { ok: true, w: sN.w, dia_kwh: sN.day_kwh, potencia_kwp: sN.capacity_kwp };
+      } catch (e) { out.solis = { ok: false, erro: String((e as Error).message ?? e) }; }
+      return json(out);
+    }
 
     if (p === "api/live") return json(await liveAll());
 
@@ -604,7 +758,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    return json({ ok: true, endpoints: ["api/live", "api/meter", "api/origem", "api/today", "api/daily", "api/monthly", "api/inverter", "api/phases", "api/summary"] });
+    return json({ ok: true, endpoints: ["api/live", "api/meter", "api/origem", "api/today", "api/daily", "api/monthly", "api/inverter", "api/phases", "api/summary", "api/config", "api/password", "api/test"] });
   } catch (e) {
     return json({ error: String(e) }, 500);
   }

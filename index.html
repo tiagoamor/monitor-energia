@@ -135,6 +135,31 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .pan{stroke:var(--w-panln);stroke-width:.7}
 .wire{stroke:var(--w-inox)}
 
+/* ---------- ajustes ---------- */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld label{font-size:11px;font-weight:650;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.fld input,.fld select{background:var(--card2);border:1px solid var(--line);color:var(--txt);
+  border-radius:11px;padding:10px 12px;font:14px inherit;font-variant-numeric:tabular-nums;
+  outline:none;transition:border-color .2s}
+.fld input:focus,.fld select:focus{border-color:var(--casa)}
+.fld .hint{font-size:11px;color:var(--dim);line-height:1.35}
+.acoes{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.bt{border:1px solid var(--line);background:var(--card2);color:var(--txt);border-radius:11px;
+  padding:10px 18px;font:600 13.5px inherit;cursor:pointer;transition:.2s}
+.bt:active{transform:scale(.96)}
+.bt.pri{background:var(--casa);border-color:var(--casa);color:#04121f}
+[data-theme="light"] .bt.pri{color:#fff}
+.msg{font-size:12.5px;font-weight:600}
+.msg.ok{color:var(--exp)} .msg.err{color:var(--imp)}
+#gear{width:36px;height:36px;border-radius:50%;border:1px solid var(--glassb);
+  background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  color:var(--txt);font-size:15px;cursor:pointer;display:grid;place-items:center;flex:none;transition:.25s}
+#gear:active{transform:scale(.9)}
+#gear.on{background:var(--casa);border-color:var(--casa)}
+.res{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:11px 13px;
+  font:12.5px ui-monospace,Menlo,monospace;white-space:pre-wrap;margin-top:12px;color:var(--dim)}
+
 table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
 th{text-align:right;font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;
   letter-spacing:.5px;padding:8px 6px;border-bottom:1px solid var(--line)}
@@ -175,8 +200,9 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 <header>
   <span class="dot" id="dot"></span>
   <h1>Monitor de Energia</h1>
-  <span class="ver">v2.0.0</span>
+  <span class="ver">v2.1.0</span>
   <span class="stamp" id="stamp">—</span>
+  <button id="gear" title="Ajustes">⚙</button>
   <button id="theme" title="Alternar tema">🌙</button>
 </header>
 
@@ -334,6 +360,59 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
     <th>Mês</th><th>Geração</th><th>Casa</th><th>Injetado</th><th>Da rede</th><th>Autossuf.</th>
   </tr></thead><tbody id="tb-mes"></tbody></table></div>
 </section>
+
+<section class="tab" id="t-config">
+  <h2 class="sec">Medidor Tuya</h2>
+  <div class="card">
+    <div class="fgrid">
+      <div class="fld"><label>Access ID / Client ID</label><input id="c-tid" autocomplete="off" spellcheck="false"></div>
+      <div class="fld"><label>Access Secret</label><input id="c-tkey" type="password" autocomplete="new-password" placeholder="deixe em branco para manter"></div>
+      <div class="fld"><label>Device ID do medidor</label><input id="c-tdev" autocomplete="off" spellcheck="false"></div>
+      <div class="fld"><label>Data center</label><select id="c-tbase">
+        <option value="https://openapi.tuyaus.com">América (tuyaus.com)</option>
+        <option value="https://openapi.tuyaeu.com">Europa (tuyaeu.com)</option>
+        <option value="https://openapi.tuyacn.com">China (tuyacn.com)</option>
+        <option value="https://openapi.tuyain.com">Índia (tuyain.com)</option>
+      </select></div>
+    </div>
+    <div class="nota">Crie um projeto em <b>iot.tuya.com</b>, vincule a conta do app Tuya/Smart Life
+      e copie o Access ID e o Access Secret. O Device ID aparece em Cloud → Devices.</div>
+  </div>
+
+  <h2 class="sec">Inversor SolisCloud</h2>
+  <div class="card">
+    <div class="fgrid">
+      <div class="fld"><label>Key ID</label><input id="c-sid" autocomplete="off" spellcheck="false"></div>
+      <div class="fld"><label>Key Secret</label><input id="c-ssec" type="password" autocomplete="new-password" placeholder="deixe em branco para manter"></div>
+      <div class="fld"><label>ID da usina (station)</label><input id="c-sst" autocomplete="off" spellcheck="false"></div>
+      <div class="fld"><label>ID do inversor</label><input id="c-sinv" autocomplete="off" spellcheck="false"></div>
+      <div class="fld"><label>Número de série do inversor</label><input id="c-ssn" autocomplete="off" spellcheck="false"></div>
+      <div class="fld"><label>URL da API</label><input id="c-sbase" autocomplete="off" spellcheck="false"></div>
+    </div>
+    <div class="nota">Peça a liberação da API no suporte da Solis. Sem essas chaves o app continua
+      funcionando só com o medidor, mas sem separar geração de consumo.</div>
+    <div class="acoes">
+      <button class="bt pri" id="c-save">Salvar credenciais</button>
+      <button class="bt" id="c-test">Testar conexão</button>
+      <span class="msg" id="c-msg"></span>
+    </div>
+    <div class="res" id="c-res" style="display:none"></div>
+  </div>
+
+  <h2 class="sec">Senha de acesso</h2>
+  <div class="card">
+    <div class="fgrid">
+      <div class="fld"><label>Nova senha</label><input id="c-p1" type="password" autocomplete="new-password"></div>
+      <div class="fld"><label>Repita a nova senha</label><input id="c-p2" type="password" autocomplete="new-password"></div>
+    </div>
+    <div class="acoes">
+      <button class="bt pri" id="c-psave">Alterar senha</button>
+      <span class="msg" id="c-pmsg"></span>
+    </div>
+    <div class="nota">Mínimo de 8 caracteres. A senha é guardada como hash PBKDF2-SHA256 no banco,
+      nunca em texto puro. Ao alterar, todos os dispositivos precisarão entrar de novo.</div>
+  </div>
+</section>
 </div>
 
 <nav class="dock" id="dock" style="display:none">
@@ -352,11 +431,13 @@ const brl=n=>"R$ "+nf(n,2);
 const setv=(id,v,u)=>$(id).innerHTML=v+(u?`<small>${u}</small>`:"");
 const svgv=(id,v)=>$(id).innerHTML=v+'<tspan> W</tspan>';
 
-async function api(p){
-  const r=await fetch(`${API}/${p}${p.includes("?")?"&":"?"}k=${encodeURIComponent(K)}`);
+async function api(p,corpo){
+  const o=corpo?{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(corpo)}:{};
+  const r=await fetch(`${API}/${p}${p.includes("?")?"&":"?"}k=${encodeURIComponent(K)}`,o);
   if(r.status===401) throw new Error("401");
-  if(!r.ok) throw new Error(r.status);
-  return r.json();
+  const j=await r.json().catch(()=>null);
+  if(!r.ok) throw new Error((j&&j.error)||r.status);
+  return j;
 }
 
 /* ---------- tema ---------- */
@@ -378,12 +459,88 @@ function moverInd(){
 document.querySelectorAll(".dock button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".dock button").forEach(x=>x.classList.toggle("on",x===b));
   document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("on",s.id==="t-"+b.dataset.t));
+  $("#gear").classList.remove("on");
   moverInd(); window.scrollTo({top:0,behavior:"smooth"});
   if(b.dataset.t==="solar") carregarSolar().catch(()=>{});
   if(b.dataset.t==="hist") carregarHist().catch(()=>{});
 });
 addEventListener("resize",moverInd);
 $("#zreset").onclick=()=>{ const c=charts["#c-origem"]; if(c&&c.resetZoom) c.resetZoom(); };
+
+/* ---------- ajustes ---------- */
+function abrirConfig(){
+  const ja=$("#t-config").classList.contains("on");
+  if(ja){ $(".dock button").click(); return; }
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="t-config"));
+  document.querySelectorAll(".dock button").forEach(x=>x.classList.remove("on"));
+  $("#ind").style.width="0px"; $("#gear").classList.add("on");
+  window.scrollTo({top:0,behavior:"smooth"});
+  carregarConfig().catch(()=>{});
+}
+$("#gear").onclick=abrirConfig;
+
+const campos={ "#c-tid":["tuya","id"], "#c-tkey":["tuya","key"], "#c-tdev":["tuya","device"],
+  "#c-tbase":["tuya","base"], "#c-sid":["solis","id"], "#c-ssec":["solis","secret"],
+  "#c-sst":["solis","station"], "#c-sinv":["solis","inverter"], "#c-ssn":["solis","sn"],
+  "#c-sbase":["solis","base"] };
+
+async function carregarConfig(){
+  const c=await api("api/config");
+  for(const [sel,[g,f]] of Object.entries(campos)){
+    const el=$(sel), v=(c[g]||{})[f]||"";
+    if(el.tagName==="SELECT"){
+      if(v && !Array.from(el.options).some(o=>o.value===v)) el.add(new Option(v,v));
+      el.value=v;
+    } else if(el.type==="password"){
+      el.value=""; el.placeholder=v||"não configurado";
+    } else el.value=v;
+  }
+  return c;
+}
+
+function aviso(sel,txt,erro){
+  const e=$(sel); e.textContent=txt; e.className="msg "+(erro?"err":"ok");
+  if(txt) setTimeout(()=>{ if(e.textContent===txt) e.textContent=""; },6000);
+}
+
+$("#c-save").onclick=async()=>{
+  const corpo={tuya:{},solis:{}};
+  for(const [sel,[g,f]] of Object.entries(campos)) corpo[g][f]=$(sel).value.trim();
+  $("#c-save").disabled=true;
+  try{ await api("api/config",corpo); await carregarConfig();
+    aviso("#c-msg","Credenciais salvas."); tickRapido(); tickLento(); }
+  catch(e){ aviso("#c-msg","Não deu para salvar: "+e.message,true); }
+  finally{ $("#c-save").disabled=false; }
+};
+
+$("#c-test").onclick=async()=>{
+  $("#c-test").disabled=true; aviso("#c-msg","Testando…");
+  try{
+    const r=await api("api/test");
+    const li=(n,o)=>`${o.ok?"✓":"✗"} ${n}: `+(o.ok
+      ? (n==="Tuya" ? `${nf(o.w_total)} W · importado ${nf(o.importado_kwh,2)} kWh · injetado ${nf(o.injetado_kwh,2)} kWh`
+                    : `${nf(o.w)} W agora · ${nf(o.dia_kwh,1)} kWh hoje · ${nf(o.potencia_kwp,2)} kWp`)
+      : o.erro);
+    $("#c-res").style.display="block";
+    $("#c-res").textContent=li("Tuya",r.tuya)+"\n"+li("SolisCloud",r.solis);
+    aviso("#c-msg", r.tuya.ok&&r.solis.ok?"Tudo respondendo.":"Veja o resultado abaixo.", !(r.tuya.ok&&r.solis.ok));
+  }catch(e){ aviso("#c-msg","Falha no teste: "+e.message,true); }
+  finally{ $("#c-test").disabled=false; }
+};
+
+$("#c-psave").onclick=async()=>{
+  const a=$("#c-p1").value, b=$("#c-p2").value;
+  if(a.length<8) return aviso("#c-pmsg","A senha precisa de pelo menos 8 caracteres.",true);
+  if(a!==b) return aviso("#c-pmsg","As duas senhas não são iguais.",true);
+  $("#c-psave").disabled=true;
+  try{
+    await api("api/password",{nova:a});
+    K=a; localStorage.setItem("ek",a);
+    $("#c-p1").value=""; $("#c-p2").value="";
+    aviso("#c-pmsg","Senha alterada. Guarde-a em lugar seguro.");
+  }catch(e){ aviso("#c-pmsg","Não deu para alterar: "+e.message,true); }
+  finally{ $("#c-psave").disabled=false; }
+};
 
 /* WebKit nao aceita innerHTML em elementos SVG */
 function setSVG(el, markup){
