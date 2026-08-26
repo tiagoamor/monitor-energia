@@ -392,15 +392,15 @@ function setSVG(el, markup){
   Array.from(doc.documentElement.childNodes).forEach(n=>el.appendChild(document.importNode(n,true)));
 }
 /* ---------- casa (replica da fachada real) ---------- */
-const K=17, OX=290, OY=340, SX=14.72, SY=8.5;
-const P=(x,y,z)=>[OX+(x-z)*SX, OY-(x+z)*SY-y*K];
+const KH=17, OX=290, OY=340, SX=14.72, SY=8.5;
+const P=(x,y,z)=>[OX+(x-z)*SX, OY-(x+z)*SY-y*KH];
 const pts=(...a)=>a.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
 const fz=(x0,x1,y0,y1,z)=>pts(P(x0,y1,z),P(x1,y1,z),P(x1,y0,z),P(x0,y0,z));  // parede frontal
 const fx=(z0,z1,y0,y1,x)=>pts(P(x,y1,z0),P(x,y1,z1),P(x,y0,z1),P(x,y0,z0));  // parede lateral
 const fy=(x0,x1,z0,z1,y)=>pts(P(x0,y,z0),P(x1,y,z0),P(x1,y,z1),P(x0,y,z1));  // laje
 const pol=(p,f,e="")=>`<polygon points="${p}" fill="${f}" ${e}/>`;
 
-const W=6.4, D=4.8;
+const HW=6.4, HD=4.8;
 const T1=3.10, L1=3.55, T2=6.20, L2=6.65, T3=8.80;   // niveis: teto terreo, laje, teto 1o, laje, topo
 const REC=1.00;                                       // recuo da sacada
 const OVH=0.22;                                       // balanco das lajes
@@ -420,12 +420,12 @@ function montarCasa(){
 
   /* ---- volume superior (mais recuado => desenhado primeiro) ---- */
   const tx0=1.40, tz0=0.85;
-  g.push(pol(fx(tz0,D,L2,T3,tx0), "url(#gSide)", ed));
-  g.push(pol(fz(tx0,W,L2,T3,tz0), "url(#gFace)", ed));
-  g.push(pol(fy(tx0,W,tz0,D,T3), "var(--w-top)", ed));
+  g.push(pol(fx(tz0,HD,L2,T3,tx0), "url(#gSide)", ed));
+  g.push(pol(fz(tx0,HW,L2,T3,tz0), "url(#gFace)", ed));
+  g.push(pol(fy(tx0,HW,tz0,HD,T3), "var(--w-top)", ed));
   // faixa escura do coroamento
-  g.push(pol(fz(tx0,W,8.30,T3,tz0), "var(--w-dark)"));
-  g.push(pol(fx(tz0,D,8.30,T3,tx0), "var(--w-dark2)"));
+  g.push(pol(fz(tx0,HW,8.30,T3,tz0), "var(--w-dark)"));
+  g.push(pol(fx(tz0,HD,8.30,T3,tx0), "var(--w-dark2)"));
   // vao aberto (varanda descoberta) da direita
   g.push(pol(fz(4.30,6.05,7.00,8.26,tz0), "url(#gVoid)"));
   g.push(pol(fz(4.30,6.05,7.00,8.26,tz0), "none", 'stroke="var(--w-dark)" stroke-width="1.6"'));
@@ -446,13 +446,13 @@ function montarCasa(){
   }
 
   /* ---- laje entre 1o andar e topo ---- */
-  g.push(pol(fx(-OVH,D,T2,L2,-OVH), "var(--w-side)", ed));
-  g.push(pol(fz(-OVH,W+OVH,T2,L2,-OVH), "var(--w-face)", ed));
-  g.push(pol(fy(-OVH,W+OVH,-OVH,D,L2), "var(--w-top)"));
+  g.push(pol(fx(-OVH,HD,T2,L2,-OVH), "var(--w-side)", ed));
+  g.push(pol(fz(-OVH,HW+OVH,T2,L2,-OVH), "var(--w-face)", ed));
+  g.push(pol(fy(-OVH,HW+OVH,-OVH,HD,L2), "var(--w-top)"));
 
   /* ---- 1o andar: parede recuada escura + sacada ---- */
-  g.push(pol(fx(REC,D,L1,T2,0), "url(#gSide)", ed));           // lateral esquerda cheia
-  g.push(pol(fz(0,W,L1,T2,REC), "var(--w-dark)"));             // fundo da sacada (grafite)
+  g.push(pol(fx(REC,HD,L1,T2,0), "url(#gSide)", ed));           // lateral esquerda cheia
+  g.push(pol(fz(0,HW,L1,T2,REC), "var(--w-dark)"));             // fundo da sacada (grafite)
   // esquadrias escuras
   g.push(pol(fz(0.45,2.15,4.25,5.95,REC-0.02), "url(#gGlass)", 'stroke="var(--w-frame)" stroke-width="1.4"'));
   g.push(pol(fz(2.35,2.95,4.25,5.95,REC-0.02), "url(#gGlass)", 'stroke="var(--w-frame)" stroke-width="1.4"'));
@@ -464,11 +464,11 @@ function montarCasa(){
     g.push(`<line x1="${P(3.10,yy,REC-0.04)[0]}" y1="${P(3.10,yy,REC-0.04)[1]}" x2="${P(4.05,yy,REC-0.04)[0]}" y2="${P(4.05,yy,REC-0.04)[1]}" stroke="var(--w-woodl)" stroke-width=".7" opacity=".65"/>`);
   }
   // piso da sacada
-  g.push(pol(fy(0,W,0,REC,L1), "var(--w-floor)"));
+  g.push(pol(fy(0,HW,0,REC,L1), "var(--w-floor)"));
 
   /* ---- terreo ---- */
-  g.push(pol(fx(0,D,0,T1,0), "url(#gSide)", ed));
-  g.push(pol(fz(0,W,0,T1,0), "url(#gFace)", ed));
+  g.push(pol(fx(0,HD,0,T1,0), "url(#gSide)", ed));
+  g.push(pol(fz(0,HW,0,T1,0), "url(#gFace)", ed));
   // vao da garagem
   g.push(pol(fz(0.35,3.10,0.06,2.62,0.01), "url(#gVoid)"));
   g.push(pol(fy(0.35,3.10,0,1.5,0.06), "var(--w-void2)", 'opacity=".85"'));
@@ -495,16 +495,16 @@ function montarCasa(){
   g.push(`<circle cx="${led[0].toFixed(1)}" cy="${led[1].toFixed(1)}" r="2.6" fill="var(--exp)" id="mled"/>`);
 
   /* ---- laje entre terreo e 1o andar ---- */
-  g.push(pol(fx(-OVH,D,T1,L1,-OVH), "var(--w-side)", ed));
-  g.push(pol(fz(-OVH,W+OVH,T1,L1,-OVH), "var(--w-face)", ed));
+  g.push(pol(fx(-OVH,HD,T1,L1,-OVH), "var(--w-side)", ed));
+  g.push(pol(fz(-OVH,HW+OVH,T1,L1,-OVH), "var(--w-face)", ed));
 
   /* ---- guarda-corpo de vidro da sacada ---- */
-  g.push(pol(fz(-OVH,W+OVH,L1,L1+1.02,-OVH), "var(--w-rail)", 'opacity=".42"'));
+  g.push(pol(fz(-OVH,HW+OVH,L1,L1+1.02,-OVH), "var(--w-rail)", 'opacity=".42"'));
   for(let i=0;i<=10;i++){
-    const t=-OVH+(W+2*OVH)*i/10;
+    const t=-OVH+(HW+2*OVH)*i/10;
     g.push(`<line x1="${P(t,L1+0.02,-OVH-0.01)[0]}" y1="${P(t,L1+0.02,-OVH-0.01)[1]}" x2="${P(t,L1+0.62,-OVH-0.01)[0]}" y2="${P(t,L1+0.62,-OVH-0.01)[1]}" stroke="var(--w-inox)" stroke-width="1.5" stroke-linecap="round"/>`);
   }
-  g.push(`<line x1="${P(-OVH,L1+1.02,-OVH)[0]}" y1="${P(-OVH,L1+1.02,-OVH)[1]}" x2="${P(W+OVH,L1+1.02,-OVH)[0]}" y2="${P(W+OVH,L1+1.02,-OVH)[1]}" stroke="var(--w-inox)" stroke-width="1.6"/>`);
+  g.push(`<line x1="${P(-OVH,L1+1.02,-OVH)[0]}" y1="${P(-OVH,L1+1.02,-OVH)[1]}" x2="${P(HW+OVH,L1+1.02,-OVH)[0]}" y2="${P(HW+OVH,L1+1.02,-OVH)[1]}" stroke="var(--w-inox)" stroke-width="1.6"/>`);
 
   setSVG($("#predio"), g.join(""));
   setSVG($("#terreno"), "");
