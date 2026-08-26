@@ -896,8 +896,6 @@ function pintarLive(L){
 
   // cards
   const autoHoje = d.hoje?.autossuficiencia ?? (casa ? (100 * sw / casa) : 0);
-  const aprove = d.hoje?.aproveitamento ?? (ger ? (100 * sw / ger) : 0);
-  const saldoRede = exp ? Math.abs(L.rede_w||0) : (L.rede_w||0);
   const totalCasa = casa || (sw + rw);
   $("#a-sw").textContent = nf(sw)+" W";
   $("#a-rw").textContent = nf(rw)+" W";
@@ -916,14 +914,13 @@ function pintarLive(L){
   $("#g-cap").textContent = nf(capacidade,2)+" kWp";
   arco("#g2-a", Math.min(1, ger/(capacidade*1000)), 0);
   $("#h-rede").textContent=exp?"Injetando na rede":"Consumindo da rede";
-  $("#k-rede").className="rv "+(exp?"exp":"casa");
-  setv("#k-rede",nf(saldoRede),"W");
-  $("#k-redes").textContent = imp>5&&inj>5
-    ? `${nf(inj)} W saindo e ${nf(imp)} W entrando ao mesmo tempo`
-    : exp ? "excedente exportado" : "complemento importado";
-  setv("#k-apr",nf(aprove,0),"%");
+  $("#g-ger").className="big sol";
+  setv("#g-ger",nf(ger),"W");
+  $("#g-gsub").textContent = ger>0 ? `${nf(100*Math.min(1, ger/(capacidade*1000)),0)}% da potência instalada` : "—";
+  setv("#g-inj",nf(inj),"W");
   pintarGauges(L);
-  $("#k-aprs").textContent = ger>0 ? `${nf(sw)} W ficam em casa, ${nf(inj)} W vão pra rede` : "sem geração agora";
+  $("#g-cap").textContent = nf(capacidade,2)+" kWp";
+  $("#a-pc").textContent = `${nf(autoHoje,0)}%`;
   $("#a-pc").textContent = `${nf(autoHoje,0)}%`;
   $("#h-self").textContent = `${nf(autoHoje,0)}%`;
   const fases = L.fases || {};
