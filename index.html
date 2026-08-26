@@ -896,7 +896,7 @@ function pintarLive(L){
     : "Calibrando a medição de fluxo…";
 
   // cards
-  const autoHoje = d.hoje?.autossuficiencia ?? (casa ? (100 * sw / casa) : 0);
+  const autoHoje = L.autossuficiencia ?? (casa ? (100 * sw / casa) : 0);
   const totalCasa = casa || (sw + rw);
   $("#a-sw").textContent = nf(sw)+" W";
   $("#a-rw").textContent = nf(rw)+" W";
