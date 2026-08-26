@@ -351,6 +351,23 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
     <div class="bx" id="p-eixo"><span>—</span><span>—</span><span>—</span><span>—</span><span>agora</span></div>
   </div>
 
+  <div class="grid" style="margin-bottom:12px">
+    <div class="card"><h3>Consumo da casa</h3>
+      <div class="gauge"><svg viewBox="0 0 200 112"><path class="tk" d="M22,100 A78,78 0 0 1 178,100"/>
+        <path class="sg" id="g1-a" d="M22,100 A78,78 0 0 1 178,100" stroke="var(--sol)" stroke-dasharray="0 999"/>
+        <path class="sg" id="g1-b" d="M22,100 A78,78 0 0 1 178,100" stroke="var(--casa)" stroke-dasharray="0 999"/></svg>
+        <div class="gv"><b id="g-tot">—</b><span id="g-sub">consumo total agora</span></div></div>
+      <div class="keys"><div><span class="kv"><i style="background:var(--sol)"></i><b id="g-sw">—</b></span><span class="kl">Do sol</span></div>
+      <div><span class="kv"><i style="background:var(--casa)"></i><b id="g-rw">—</b></span><span class="kl">Da rede</span></div></div>
+    </div>
+    <div class="card"><h3>Geração</h3>
+      <div class="gauge"><svg viewBox="0 0 200 112"><path class="tk" d="M22,100 A78,78 0 0 1 178,100"/>
+        <path class="sg" id="g2-a" d="M22,100 A78,78 0 0 1 178,100" stroke="var(--sol)" stroke-dasharray="0 999"/></svg>
+        <div class="gv"><b id="g-ger">—</b><span id="g-gsub">— % da potência instalada</span></div></div>
+      <div class="keys"><div><span class="kv"><i style="background:var(--exp)"></i><b id="g-inj">—</b></span><span class="kl">Injetando</span></div>
+      <div><span class="kv"><i style="background:var(--sol)"></i><b id="g-cap">—</b></span><span class="kl">Capacidade</span></div></div>
+    </div>
+  </div>
   <div class="card" style="margin-bottom:12px">
     <div class="ch"><h3>Resumo agora</h3><span class="u">/ tempo real</span></div>
     <div class="top">
@@ -866,10 +883,21 @@ function pintarLive(L){
     : "Calibrando a medição de fluxo…";
 
   // cards
-  $("#a-pc").textContent = `${nf(L.autossuficiencia||0,0)}%`;
   const autoHoje = d.hoje?.autossuficiencia ?? (casa ? (100 * sw / casa) : 0);
   const aprove = d.hoje?.aproveitamento ?? (ger ? (100 * sw / ger) : 0);
   const saldoRede = exp ? Math.abs(L.rede_w||0) : (L.rede_w||0);
+  const totalCasa = casa || (sw + rw);
+  $("#g-sw").textContent = nf(sw);
+  $("#g-rw").textContent = nf(rw);
+  $("#g-tot").textContent = nf(totalCasa);
+  $("#g-sub").textContent = totalCasa>0 ? `${nf(100*sw/Math.max(1,totalCasa),0)}% do sol · ${nf(100*rw/Math.max(1,totalCasa),0)}% da rede` : "consumo total agora";
+  arco("#g1-a", totalCasa>0 ? sw/totalCasa : 0, 0);
+  arco("#g1-b", totalCasa>0 ? rw/totalCasa : 0, totalCasa>0 ? sw/totalCasa : 0);
+  $("#g-ger").textContent = nf(ger);
+  $("#g-gsub").textContent = `${nf(100*Math.min(1, ger/(capacidade*1000)),0)}% da potência instalada`;
+  $("#g-inj").textContent = nf(inj);
+  $("#g-cap").textContent = nf(capacidade,2)+" kWp";
+  arco("#g2-a", Math.min(1, ger/(capacidade*1000)), 0);
   $("#h-rede").textContent=exp?"Injetando na rede":"Consumindo da rede";
   $("#k-rede").className="rv "+(exp?"exp":"casa");
   setv("#k-rede",nf(saldoRede),"W");
@@ -881,7 +909,6 @@ function pintarLive(L){
   $("#k-aprs").textContent = ger>0 ? `${nf(sw)} W ficam em casa, ${nf(inj)} W vão pra rede` : "sem geração agora";
   $("#a-pc").textContent = `${nf(autoHoje,0)}%`;
   $("#h-self").textContent = `${nf(autoHoje,0)}%`;
-
   const fases = L.fases || {};
   const rows = ["a","b","c"].map(k=>{
     const f=fases[k]||{};
