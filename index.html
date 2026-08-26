@@ -226,6 +226,15 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 .bar{height:7px;border-radius:5px;background:var(--track);overflow:hidden;margin-top:9px}
 .bar i{display:block;height:100%;border-radius:5px;transition:width .5s}
 
+#modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:85;
+  background:rgba(5,8,16,.36);backdrop-filter:blur(10px) saturate(120%);-webkit-backdrop-filter:blur(10px) saturate(120%)}
+#modal.on{display:flex}
+#modal .panel{width:min(920px,calc(100vw - 24px));max-height:min(86vh,920px);overflow:auto;
+  border-radius:22px;padding:16px 14px 14px;background:var(--gcard);border:1px solid var(--glassb);
+  backdrop-filter:blur(38px) saturate(220%);-webkit-backdrop-filter:blur(38px) saturate(220%);
+  box-shadow:0 24px 70px rgba(0,0,0,.34),inset 0 1px 0 var(--gin)}
+#modal .close{float:right;border:0;background:var(--gcard2);color:var(--txt);border:1px solid var(--glassb);
+  border-radius:999px;width:34px;height:34px;cursor:pointer}
 #gate{position:fixed;inset:0;background:transparent;display:flex;align-items:center;justify-content:center;z-index:99}
 #gate form{background:var(--gcard);border:1px solid var(--glassb);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);padding:28px;border-radius:18px;width:min(320px,86vw);text-align:center}
 #gate input{width:100%;margin:16px 0 12px;padding:12px;border-radius:12px;border:1px solid var(--glassb);
@@ -352,22 +361,14 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
     <div class="bx" id="p-eixo"><span>—</span><span>—</span><span>—</span><span>—</span><span>agora</span></div>
   </div>
 
-  <div class="grid" style="margin-bottom:12px">
-    <div class="card"><h3>Consumo da casa</h3>
-      <div class="gauge"><svg viewBox="0 0 200 112"><path class="tk" d="M22,100 A78,78 0 0 1 178,100"/>
-        <path class="sg" id="g1-a" d="M22,100 A78,78 0 0 1 178,100" stroke="var(--sol)" stroke-dasharray="0 999"/>
-        <path class="sg" id="g1-b" d="M22,100 A78,78 0 0 1 178,100" stroke="var(--casa)" stroke-dasharray="0 999"/></svg>
-        <div class="gv"><b id="g-tot">—</b><span id="g-sub">consumo total agora</span></div></div>
-      <div class="keys"><div><span class="kv"><i style="background:var(--sol)"></i><b id="g-sw">—</b></span><span class="kl">Do sol</span></div>
-      <div><span class="kv"><i style="background:var(--casa)"></i><b id="g-rw">—</b></span><span class="kl">Da rede</span></div></div>
-    </div>
-    <div class="card"><h3>Geração</h3>
-      <div class="gauge"><svg viewBox="0 0 200 112"><path class="tk" d="M22,100 A78,78 0 0 1 178,100"/>
-        <path class="sg" id="g2-a" d="M22,100 A78,78 0 0 1 178,100" stroke="var(--sol)" stroke-dasharray="0 999"/></svg>
-        <div class="gv"><b id="g-ger">—</b><span id="g-gsub">— % da potência instalada</span></div></div>
-      <div class="keys"><div><span class="kv"><i style="background:var(--exp)"></i><b id="g-inj">—</b></span><span class="kl">Injetando</span></div>
-      <div><span class="kv"><i style="background:var(--sol)"></i><b id="g-cap">—</b></span><span class="kl">Capacidade</span></div></div>
-    </div>
+  <div class="card" id="consumo-card" style="margin-bottom:12px;cursor:pointer">
+    <h3>Consumo da casa / W</h3>
+    <div class="gauge"><svg viewBox="0 0 200 112"><path class="tk" d="M22,100 A78,78 0 0 1 178,100"/>
+      <path class="sg" id="g1-a" d="M22,100 A78,78 0 0 1 178,100" stroke="var(--sol)" stroke-dasharray="0 999"/>
+      <path class="sg" id="g1-b" d="M22,100 A78,78 0 0 1 178,100" stroke="var(--casa)" stroke-dasharray="0 999"/></svg>
+      <div class="gv"><b id="g-tot">—</b><span id="g-sub">consumo total agora</span></div></div>
+    <div class="keys"><div><span class="kv"><i style="background:var(--sol)"></i><b id="g-sw">—</b></span><span class="kl">Do sol</span></div>
+    <div><span class="kv"><i style="background:var(--casa)"></i><b id="g-rw">—</b></span><span class="kl">Da rede</span></div></div>
   </div>
   <div class="self">
     <div class="top">
@@ -381,31 +382,6 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
       <span style="margin-left:auto">Consumo total <b id="a-tw">—</b></span>
     </div>
     <div class="nota" id="janela">—</div>
-  </div>
-
-  <h2 class="sec">Fases do medidor · ao vivo</h2>
-  <div class="tw card" style="padding:10px 14px"><table><thead><tr>
-    <th>Fase</th><th>Tensão</th><th>Corrente</th><th>Potência</th></tr></thead>
-    <tbody id="fases"></tbody></table>
-    <div class="nota">O medidor informa só a intensidade de cada fase, sem o sentido. Como o inversor
-      é monofásico, uma fase pode estar injetando enquanto outra puxa da rede — por isso este total
-      costuma ser maior que o fluxo líquido mostrado acima.</div>
-  </div>
-
-  <div class="grid">
-    <div class="card"><h3>Gerando agora</h3>
-      <div class="big sol" id="k-ger">—<small>W</small></div>
-      <div class="bar"><i id="b-ger" style="background:var(--sol);width:0"></i></div>
-      <div class="sub" id="k-gerp">—</div></div>
-    <div class="card"><h3>Consumo da casa</h3>
-      <div class="big casa" id="k-casa">—<small>W</small></div>
-      <div class="sub" id="k-auto">—</div></div>
-    <div class="card"><h3 id="h-rede">Rede</h3>
-      <div class="big" id="k-rede">—<small>W</small></div>
-      <div class="sub" id="k-redes">—</div></div>
-    <div class="card"><h3>Aproveitamento da geração</h3>
-      <div class="big" id="k-apr">—<small>%</small></div>
-      <div class="sub" id="k-aprs">—</div></div>
   </div>
 
   <h2 class="sec">Consumo da casa por origem — últimas 24 h
@@ -527,6 +503,20 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 </section>
 </div>
 
+<div id="modal" aria-hidden="true">
+  <div class="panel">
+    <button class="close" id="mclose">✕</button>
+    <h2 class="sec">Fases do medidor · ao vivo</h2>
+    <div class="tw card" style="padding:10px 14px"><table><thead><tr>
+      <th>Fase</th><th>Tensão</th><th>Corrente</th><th>Potência</th></tr></thead>
+      <tbody id="fases"></tbody></table>
+      <div class="nota">O medidor informa só a intensidade de cada fase, sem o sentido. Como o inversor
+        é monofásico, uma fase pode estar injetando enquanto outra puxa da rede — por isso este total
+        costuma ser maior que o fluxo líquido mostrado acima.</div>
+    </div>
+  </div>
+</div>
+
 <nav class="dock" id="dock" style="display:none">
   <span class="ind" id="ind"></span>
   <button class="on" data-t="agora">⚡ Agora</button>
@@ -562,6 +552,12 @@ function aplicarTema(t){
 }
 $("#theme").onclick=()=>aplicarTema(document.documentElement.dataset.theme==="dark"?"light":"dark");
 /* chamada inicial fica no fim do script (evita TDZ de charts/cssv) */
+
+function abrirModal(){ $("#modal").classList.add("on"); $("#modal").setAttribute("aria-hidden","false"); }
+function fecharModal(){ $("#modal").classList.remove("on"); $("#modal").setAttribute("aria-hidden","true"); }
+$("#modal").onclick=e=>{ if(e.target.id==="modal") fecharModal(); };
+$("#mclose").onclick=fecharModal;
+$("#consumo-card").onclick=abrirModal;
 
 /* ---------- dock ---------- */
 function moverInd(){
