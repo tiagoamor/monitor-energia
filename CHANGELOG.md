@@ -7,6 +7,21 @@ versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 > **Nota:** a partir daqui o versionamento foi reiniciado em `0.2.0`, a pedido.
 > As entradas `2.x` abaixo são o histórico anterior do projeto.
 
+## [0.2.1] — 2026-08-26
+
+### Alterado
+- Os três cartões de "agora" viraram **um só** ("Resumo agora"). O consumo por
+  origem e a geração já aparecem nos medidores, então o resumo ficou apenas com
+  a autossuficiência, o fluxo com a rede e o aproveitamento da geração.
+- Cartões bem mais transparentes (opacidade de 0,44 para 0,24 no tema escuro e
+  de 0,52 para 0,36 no claro), com desfoque maior e fundo ambiental mais vivo.
+
+### Corrigido
+- A animação do fluxo da rede usava coordenadas antigas e corria fora do
+  desenho; agora percorre o próprio fio, da rede ao poste e do poste à casa
+  (invertendo o sentido quando há injeção).
+- Fluxo e valores da rede passaram para o cinza, como o restante da interface.
+
 ## [0.2.0] — 2026-08-26
 
 ### Adicionado
