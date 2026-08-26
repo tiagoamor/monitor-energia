@@ -14,9 +14,9 @@
   --bg:#0b1120; --bg2:#0e1526; --card:#151d2e; --card2:#1b2438; --line:#26314a;
   --txt:#e8eefc; --dim:#8a99b8;
   --sol:#fbbf24; --casa:#aab6cb; --exp:#34d399; --imp:#f87171;
-  --glass:rgba(26,35,54,.46); --glassb:rgba(255,255,255,.13); --glasson:rgba(255,255,255,.15);
-  --gcard:rgba(20,28,44,.44); --gcard2:rgba(255,255,255,.055); --gline:rgba(255,255,255,.09);
-  --gin:rgba(255,255,255,.10); --track:rgba(255,255,255,.10);
+  --glass:rgba(26,35,54,.30); --glassb:rgba(255,255,255,.13); --glasson:rgba(255,255,255,.15);
+  --gcard:rgba(18,26,42,.24); --gcard2:rgba(255,255,255,.07); --gline:rgba(255,255,255,.10);
+  --gin:rgba(255,255,255,.13); --track:rgba(255,255,255,.11);
   --shadow:0 10px 34px rgba(0,0,0,.5);
   --h-sky:#0f1830; --h-roof:#18223c; --h-left:#212c48; --h-right:#2c3959;
   --h-panel:#0e1b33; --h-panelln:#3a5a92; --h-edge:#3a4767; --h-win:#fcd67a;
@@ -38,8 +38,8 @@
   --bg:#eef2f9; --bg2:#f7f9fd; --card:#ffffff; --card2:#f1f5fb; --line:#dfe6f1;
   --txt:#16202f; --dim:#647389;
   --sol:#e08c00; --casa:#5c6a7e; --exp:#0d9668; --imp:#dc2626;
-  --glass:rgba(255,255,255,.55); --glassb:rgba(255,255,255,.55); --glasson:rgba(10,20,40,.08);
-  --gcard:rgba(255,255,255,.52); --gcard2:rgba(255,255,255,.34); --gline:rgba(20,40,80,.10);
+  --glass:rgba(255,255,255,.42); --glassb:rgba(255,255,255,.55); --glasson:rgba(10,20,40,.08);
+  --gcard:rgba(255,255,255,.36); --gcard2:rgba(255,255,255,.30); --gline:rgba(20,40,80,.11);
   --gin:rgba(255,255,255,.65); --track:rgba(20,40,80,.11);
   --shadow:0 10px 30px rgba(20,40,80,.16);
   --h-sky:#e4ebf6; --h-roof:#b9c6dd; --h-left:#ced9ea; --h-right:#e6edf7;
@@ -61,9 +61,9 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:
-    radial-gradient(1000px 640px at 16% 4%,  rgba(52,211,153,.17), transparent 62%),
-    radial-gradient(820px 580px at 86% 16%,  rgba(251,191,36,.13), transparent 64%),
-    radial-gradient(1000px 720px at 52% 104%,rgba(140,160,200,.15), transparent 66%),
+    radial-gradient(1000px 640px at 16% 4%,  rgba(52,211,153,.24), transparent 62%),
+    radial-gradient(820px 580px at 86% 16%,  rgba(251,191,36,.19), transparent 64%),
+    radial-gradient(1000px 720px at 52% 104%,rgba(140,160,200,.22), transparent 66%),
     var(--bg);
   transition:background .35s}
 body{background:var(--bg);color:var(--txt);
@@ -111,9 +111,9 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 @keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
-.card,.self,.scene{background:var(--gcard);border:1px solid var(--glassb);
-  backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);
-  box-shadow:0 14px 38px rgba(0,0,0,.26),inset 0 1px 0 var(--gin);
+.card,.scene{background:var(--gcard);border:1px solid var(--glassb);
+  backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);
+  box-shadow:0 16px 40px rgba(0,0,0,.20),inset 0 1px 0 var(--gin);
   transition:background .35s,border-color .35s}
 .card{border-radius:18px;padding:16px}
 .card h3{font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
@@ -123,14 +123,9 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .brl{font-size:15px;font-weight:600;color:var(--exp);margin-top:6px;font-variant-numeric:tabular-nums}
 .nota{font-size:11.5px;line-height:1.55;color:var(--dim);margin-top:12px}
 
-.self{border-radius:20px;padding:18px;margin-bottom:12px}
-.self .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.self .pc{font-size:44px;font-weight:750;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums}
-.self .lb{font-size:13px;color:var(--dim);font-weight:500}
-.split{display:flex;height:14px;border-radius:9px;overflow:hidden;margin:14px 0 10px;background:var(--track)}
-.split i{display:block;height:100%;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.split .s{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
-.split .r{background:linear-gradient(90deg,var(--casa),var(--dim))}
+.top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.pc{font-size:44px;font-weight:750;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums}
+.lb{font-size:13px;color:var(--dim);font-weight:500}
 .leg{display:flex;gap:18px;font-size:12.5px;flex-wrap:wrap}
 .leg span{display:flex;align-items:center;gap:6px;color:var(--dim)}
 .leg b{color:var(--txt);font-variant-numeric:tabular-nums}
@@ -236,7 +231,7 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
   background:var(--gcard2);color:var(--txt);font-size:16px;text-align:center}
 #gate button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--casa);color:var(--bg);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
 .err{color:var(--imp);font-size:12.5px;margin-top:10px;min-height:16px}
-@media(max-width:520px){.wrap{padding:12px}.big{font-size:26px}.self .pc{font-size:38px}}
+@media(max-width:520px){.wrap{padding:12px}.big{font-size:26px}.pc{font-size:38px}}
 </style>
 </head>
 <body>
@@ -356,16 +351,20 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
     <div class="bx" id="p-eixo"><span>—</span><span>—</span><span>—</span><span>—</span><span>agora</span></div>
   </div>
 
-  <div class="self">
+  <div class="card" style="margin-bottom:12px">
+    <div class="ch"><h3>Resumo agora</h3><span class="u">/ tempo real</span></div>
     <div class="top">
       <span class="pc" id="a-pc">—</span>
-      <span class="lb">do consumo da casa vindo do <b class="sol">sol</b> agora</span>
+      <span class="lb">do consumo da casa vindo do <b class="sol">sol</b>;
+        o resto vem da rede</span>
     </div>
-    <div class="split"><i class="s" id="a-s" style="width:0"></i><i class="r" id="a-r" style="width:0"></i></div>
-    <div class="leg">
-      <span><i class="sq" style="background:#fbbf24"></i>Solar <b id="a-sw">—</b></span>
-      <span><i class="sq" style="background:var(--casa)"></i>Rede <b id="a-rw">—</b></span>
-      <span style="margin-left:auto">Consumo total <b id="a-tw">—</b></span>
+    <div class="rows">
+      <div class="rw"><span><span class="rn" id="h-rede">Rede</span>
+        <span class="rs" id="k-redes">—</span></span>
+        <b class="rv" id="k-rede">—<small>W</small></b></div>
+      <div class="rw"><span><span class="rn">Aproveitamento da geração</span>
+        <span class="rs" id="k-aprs">—</span></span>
+        <b class="rv" id="k-apr">—<small>%</small></b></div>
     </div>
     <div class="nota" id="janela">—</div>
   </div>
@@ -377,22 +376,6 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
     <div class="nota">O medidor informa só a intensidade de cada fase, sem o sentido. Como o inversor
       é monofásico, uma fase pode estar injetando enquanto outra puxa da rede — por isso este total
       costuma ser maior que o fluxo líquido mostrado acima.</div>
-  </div>
-
-  <div class="grid">
-    <div class="card"><h3>Gerando agora</h3>
-      <div class="big sol" id="k-ger">—<small>W</small></div>
-      <div class="bar"><i id="b-ger" style="background:var(--sol);width:0"></i></div>
-      <div class="sub" id="k-gerp">—</div></div>
-    <div class="card"><h3>Consumo da casa</h3>
-      <div class="big casa" id="k-casa">—<small>W</small></div>
-      <div class="sub" id="k-auto">—</div></div>
-    <div class="card"><h3 id="h-rede">Rede</h3>
-      <div class="big" id="k-rede">—<small>W</small></div>
-      <div class="sub" id="k-redes">—</div></div>
-    <div class="card"><h3>Aproveitamento da geração</h3>
-      <div class="big" id="k-apr">—<small>%</small></div>
-      <div class="sub" id="k-aprs">—</div></div>
   </div>
 
   <h2 class="sec">Consumo da casa por origem — últimas 24 h
@@ -850,6 +833,8 @@ function redesenhar(){
 }
 
 /* ---------- tempo real ---------- */
+const FIO_REDE="M378,255 L428,231 L505,272 L582,290";
+const FIO_REDE_INV="M582,290 L505,272 L428,231 L378,255";
 let capacidade=5.004, tarifa=0.8261;
 function pintarLive(L){
   $("#dot").classList.remove("off"); $("#dot").classList.add("beat");
@@ -863,8 +848,8 @@ function pintarLive(L){
   // cena
   svgv("#n-sol",nf(ger)); svgv("#n-casa",nf(casa)); svgv("#n-rede",nf(Math.abs(L.rede_w||0)));
   $("#l-rede").textContent=exp?"INJETANDO":"DA REDE";
-  $("#f-rede").setAttribute("stroke",exp?"var(--exp)":"var(--imp)");
-  $("#f-rede").setAttribute("d",exp?"M418,286 L474,318 L520,318":"M520,318 L474,318 L418,286");
+  $("#f-rede").setAttribute("stroke",exp?"var(--exp)":"var(--casa)");
+  $("#f-rede").setAttribute("d",exp?FIO_REDE:FIO_REDE_INV);
   $("#f-sol").style.display=ger>5?"":"none";
   $("#f-casa").style.display=casa>5?"":"none";
   $("#f-rede").style.display=(imp+inj)>5?"":"none";
@@ -875,23 +860,14 @@ function pintarLive(L){
 
   // autossuficiência
   $("#a-pc").textContent=L.autossuficiencia+"%";
-  $("#a-pc").className="pc "+(L.autossuficiencia>=50?"sol":"imp");
-  const tot=Math.max(1,sw+rw);
-  $("#a-s").style.width=(100*sw/tot)+"%"; $("#a-r").style.width=(100*rw/tot)+"%";
-  $("#a-sw").textContent=nf(sw)+" W"; $("#a-rw").textContent=nf(rw)+" W"; $("#a-tw").textContent=nf(casa)+" W";
+  $("#a-pc").className="pc "+(L.autossuficiencia>=50?"sol":"casa");
   $("#janela").textContent=L.fluxo_ok
     ? `Fluxos calculados pelos contadores de energia numa janela de ${Math.max(4,Math.round((L.janela_s||240)/60))} min. As fases atualizam ao vivo a cada 5 s.`
     : "Calibrando a medição de fluxo…";
 
   // cards
-  const pct=Math.min(100,100*ger/(capacidade*1000));
-  setv("#k-ger",nf(ger),"W"); $("#b-ger").style.width=pct+"%";
-  $("#k-gerp").textContent=nf(pct,0)+"% de "+nf(capacidade,3)+" kWp";
-  setv("#k-casa",nf(casa),"W");
-  $("#k-auto").textContent = sw>5&&rw>5 ? `${nf(sw)} W do sol + ${nf(rw)} W da rede`
-    : rw>5 ? "100% da rede" : sw>5 ? "100% do sol" : "—";
   $("#h-rede").textContent=exp?"Injetando na rede":"Consumindo da rede";
-  $("#k-rede").className="big "+(exp?"exp":"imp");
+  $("#k-rede").className="rv "+(exp?"exp":"casa");
   setv("#k-rede",nf(Math.abs(L.rede_w||0)),"W");
   $("#k-redes").textContent = imp>5&&inj>5
     ? `${nf(inj)} W saindo e ${nf(imp)} W entrando ao mesmo tempo`
