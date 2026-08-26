@@ -911,7 +911,7 @@ function pintarLive(L){
   $("#g-inj").textContent = nf(inj);
   $("#g-cap").textContent = nf(capacidade,2)+" kWp";
   arco("#g2-a", Math.min(1, ger/(capacidade*1000)), 0);
-  $("#h-rede").textContent=exp?"Injetando na rede":"Consumindo da rede";
+  $("#g-sub").textContent=exp?"Injetando na rede":"Consumindo da rede";
   $("#g-ger").className="big sol";
   setv("#g-ger",nf(ger),"W");
   $("#g-gsub").textContent = ger>0 ? `${nf(100*Math.min(1, ger/(capacidade*1000)),0)}% da potência instalada` : "—";
@@ -928,7 +928,7 @@ function pintarLive(L){
       <td>${nf(f.a,2)} A</td><td><b>${nf(f.w)} W</b></td></tr>`;
   });
   const total = (fases.a?.w||0)+(fases.b?.w||0)+(fases.c?.w||0);
-  $("#fases").innerHTML=rows.join("")+`<tr><td><b>Total</b></td><td></td><td></td><td><b>${nf(total)} W</b></td></tr>`;
+  if($("#fases")) $("#fases").innerHTML=rows.join("")+`<tr><td><b>Total</b></td><td></td><td></td><td><b>${nf(total)} W</b></td></tr>`;
 }
 
 function pintarHoje(d){
