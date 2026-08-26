@@ -1060,14 +1060,15 @@ async function tickLento(){
   try{
     pintarHoje(await api("api/today"));
     const o=await api("api/origem?horas=24"); if(o.length){ desenharOrigem(o); desenharProducao(o); }
-    if($("#t-solar").classList.contains("on")) await carregarSolar();
+    await carregarSolar();
   }catch(_){}
 }
 function iniciar(){ tickRapido(); tickLento(); setInterval(tickRapido,5000); setInterval(tickLento,60000); }
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden){tickRapido();tickLento();} });
 aplicarTema(localStorage.getItem("tema")||"dark");
 montarCasa();
-if(K) api("api/meter").then(abrir).catch(()=>localStorage.removeItem("ek"));
+const EK=localStorage.getItem("ek")||K||"";
+if(EK){ K=EK; api("api/meter").then(abrir).catch(()=>localStorage.removeItem("ek")); }
 </script>
 </body>
 </html>
