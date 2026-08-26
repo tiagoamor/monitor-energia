@@ -4,6 +4,31 @@ Todas as mudanças relevantes deste projeto. O formato segue
 [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o
 versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 
+> **Nota:** a partir daqui o versionamento foi reiniciado em `0.2.0`, a pedido.
+> As entradas `2.x` abaixo são o histórico anterior do projeto.
+
+## [0.2.0] — 2026-08-26
+
+### Adicionado
+- Visual **Liquid Glass**: fundo ambiental fixo com gradientes suaves e todos os
+  cartões translúcidos (`backdrop-filter: blur + saturate`), com brilho interno
+  na borda superior.
+- **Medidores semicirculares**: consumo da casa repartido em dois arcos
+  (do sol / da rede) e geração atual sobre a potência instalada.
+- **Gráfico de barras da geração nas últimas 24 h**, com o pico destacado,
+  total em kWh e eixo de horários.
+
+### Alterado
+- Menu flutuante maior, na proporção do padrão iOS (64 px de altura,
+  botões de 48 px e texto de 16 px).
+- O azul deu lugar ao **cinza** em toda a interface: fluxo da rede na cena,
+  legendas, barra de repartição, gráfico de origem, botões e campos.
+
+### Corrigido
+- Atalho CSS `font: <peso> <tamanho> inherit` era inválido e fazia botões e
+  campos caírem para a fonte padrão do sistema; substituído por propriedades
+  separadas.
+
 ## [2.1.0] — 2026-08-26
 
 ### Adicionado
