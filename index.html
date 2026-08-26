@@ -866,6 +866,8 @@ function pintarLive(L){
     : "Calibrando a medição de fluxo…";
 
   // cards
+  const casaHoje = h.casa || (h.casa_solar || 0) + (h.casa_rede || 0);
+  const autoHoje = h.autossuficiencia ?? (h.casa ? 100 * (h.casa_solar || 0) / h.casa : 0);
   $("#h-rede").textContent=exp?"Injetando na rede":"Consumindo da rede";
   $("#k-rede").className="rv "+(exp?"exp":"casa");
   setv("#k-rede",nf(Math.abs(L.rede_w||0)),"W");
@@ -875,6 +877,8 @@ function pintarLive(L){
   setv("#k-apr",L.aproveitamento,"%");
   pintarGauges(L);
   $("#k-aprs").textContent = ger>0 ? `${nf(sw)} W ficam em casa, ${nf(inj)} W vão pra rede` : "sem geração agora";
+  $("#a-pc").textContent = `${nf(autoHoje,0)}%`;
+  $("#h-self").textContent = `${nf(autoHoje,0)}%`;
 
   $("#fases").innerHTML=["a","b","c"].map(k=>{
     const f=L.fases[k];
