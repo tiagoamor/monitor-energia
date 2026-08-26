@@ -7,6 +7,8 @@
 <title>Monitor de Energia</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 <style>
 :root, [data-theme="dark"]{
   --bg:#0b1120; --bg2:#0e1526; --card:#151d2e; --card2:#1b2438; --line:#26314a;
@@ -17,6 +19,18 @@
   --h-sky:#0f1830; --h-roof:#18223c; --h-left:#212c48; --h-right:#2c3959;
   --h-panel:#0e1b33; --h-panelln:#3a5a92; --h-edge:#3a4767; --h-win:#fcd67a;
   --h-line:#5d6d92; --h-ground:rgba(0,0,0,.35);
+  --w-sky1:#0a1226; --w-sky2:#131c33;
+  --w-face:#3a4763; --w-face2:#2e3a53; --w-face3:#4a587a;
+  --w-side:#26304a; --w-side2:#1e2740; --w-top:#42506f;
+  --w-dark:#161d30; --w-dark2:#121828; --w-void:#0a1020; --w-void2:#070b16;
+  --w-edge:#4b5a7c; --w-wood:#7a4f2c; --w-woodl:#a06c3e;
+  --w-door:#8a5c31; --w-doorl:#b07c46;
+  --w-glass1:#fcd67a; --w-glass2:#dda335; --w-frame:#0f1526;
+  --w-rail:#8fb6de; --w-inox:#9fb0c9; --w-floor:#2f3a52;
+  --w-pave:#1c2436; --w-pavel:#28324a; --w-grass:#13301c;
+  --w-shadow:rgba(0,0,0,.5); --w-box:#2c3856;
+  --w-pan1:#0f1d38; --w-pan2:#22406f; --w-panln:#4a6da8; --w-panbase:#2b3550;
+  --w-astro:#e8eefc; --w-cloud:#25314c;
 }
 [data-theme="light"]{
   --bg:#eef2f9; --bg2:#f7f9fd; --card:#ffffff; --card2:#f1f5fb; --line:#dfe6f1;
@@ -27,6 +41,18 @@
   --h-sky:#e4ebf6; --h-roof:#b9c6dd; --h-left:#ced9ea; --h-right:#e6edf7;
   --h-panel:#31456e; --h-panelln:#7d93bd; --h-edge:#a9b7cf; --h-win:#f6c453;
   --h-line:#93a3bd; --h-ground:rgba(40,60,100,.13);
+  --w-sky1:#bcd8f4; --w-sky2:#e7f0fa;
+  --w-face:#dfe3e9; --w-face2:#c9cfd9; --w-face3:#eef1f5;
+  --w-side:#c3c9d3; --w-side2:#aeb5c1; --w-top:#e9ecf1;
+  --w-dark:#4f5661; --w-dark2:#434a55; --w-void:#3d434c; --w-void2:#2b3038;
+  --w-edge:#a8b0bd; --w-wood:#b5793c; --w-woodl:#d5a066;
+  --w-door:#c8892f; --w-doorl:#e6b269;
+  --w-glass1:#aac5dc; --w-glass2:#6d8fb1; --w-frame:#2b3038;
+  --w-rail:#bcd6ea; --w-inox:#8d99a8; --w-floor:#d7dce4;
+  --w-pave:#cfd4dc; --w-pavel:#bcc2cc; --w-grass:#86b563;
+  --w-shadow:rgba(35,55,90,.22); --w-box:#b9c0cb;
+  --w-pan1:#2b3f68; --w-pan2:#4f6b9c; --w-panln:#8ea6c9; --w-panbase:#9aa5b5;
+  --w-astro:#ffd45e; --w-cloud:#ffffff;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--txt);
@@ -41,7 +67,12 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .dot.off{background:var(--imp);box-shadow:0 0 10px var(--imp)}
 .dot.beat{animation:beat .5s}
 @keyframes beat{50%{transform:scale(2.1);opacity:.5}}
-.stamp{margin-left:auto;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.ver{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--dim);
+  border:1px solid var(--line);border-radius:20px;padding:2px 8px}
+.zbtn{float:right;text-transform:none;letter-spacing:0;font:600 11px inherit;color:var(--dim);
+  background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:3px 10px;cursor:pointer}
+.zbtn:active{transform:scale(.94)}
+.stamp{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
 #theme{width:36px;height:36px;border-radius:50%;border:1px solid var(--glassb);
   background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   color:var(--txt);font-size:16px;cursor:pointer;display:grid;place-items:center;flex:none;transition:.25s}
@@ -91,7 +122,7 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .sq{width:9px;height:9px;border-radius:3px;flex:none}
 
 /* ---------- cena da casa ---------- */
-.scene{background:linear-gradient(180deg,var(--h-sky),var(--card));
+.scene{background:linear-gradient(180deg,var(--w-sky1) 0%,var(--w-sky2) 62%,var(--card) 100%);
   border:1px solid var(--line);border-radius:18px;padding:8px 4px 4px;margin-bottom:12px;overflow:hidden}
 .scene svg{width:100%;display:block}
 .lbl{font:600 11.5px -apple-system,sans-serif;fill:var(--dim);letter-spacing:.4px}
@@ -101,7 +132,8 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .flux{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-dasharray:0.5 11;
   animation:run 1s linear infinite}
 @keyframes run{to{stroke-dashoffset:-11.5}}
-.pan{stroke:var(--h-panelln);stroke-width:.7}
+.pan{stroke:var(--w-panln);stroke-width:.7}
+.wire{stroke:var(--w-inox)}
 
 table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
 th{text-align:right;font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;
@@ -143,6 +175,7 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 <header>
   <span class="dot" id="dot"></span>
   <h1>Monitor de Energia</h1>
+  <span class="ver">v2.0.0</span>
   <span class="stamp" id="stamp">—</span>
   <button id="theme" title="Alternar tema">🌙</button>
 </header>
@@ -151,57 +184,50 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 <section class="tab on" id="t-agora">
 
   <div class="scene">
-    <svg id="casa" viewBox="0 0 560 430" preserveAspectRatio="xMidYMid meet">
+    <svg id="casa" viewBox="0 0 600 420" preserveAspectRatio="xMidYMid meet">
       <defs>
-        <linearGradient id="gRoof" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="var(--h-roof)"/><stop offset="1" stop-color="var(--h-left)"/>
-        </linearGradient>
         <linearGradient id="gPan" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="var(--h-panel)"/>
-          <stop offset="1" stop-color="var(--h-panelln)" stop-opacity=".55"/>
+          <stop offset="0" stop-color="var(--w-pan1)"/><stop offset="1" stop-color="var(--w-pan2)"/>
+        </linearGradient>
+        <linearGradient id="gFace" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--w-face)"/><stop offset="1" stop-color="var(--w-face2)"/>
+        </linearGradient>
+        <linearGradient id="gSide" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--w-side)"/><stop offset="1" stop-color="var(--w-side2)"/>
+        </linearGradient>
+        <linearGradient id="gGlass" x1="0" y1="0" x2=".3" y2="1">
+          <stop offset="0" stop-color="var(--w-glass1)"/><stop offset="1" stop-color="var(--w-glass2)"/>
+        </linearGradient>
+        <linearGradient id="gVoid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--w-void)"/><stop offset="1" stop-color="var(--w-void2)"/>
         </linearGradient>
         <radialGradient id="gGlow">
-          <stop offset="0" stop-color="#fbbf24" stop-opacity=".5"/>
-          <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+          <stop offset="0" stop-color="var(--sol)" stop-opacity=".45"/>
+          <stop offset="1" stop-color="var(--sol)" stop-opacity="0"/>
         </radialGradient>
         <filter id="fBlur"><feGaussianBlur stdDeviation="9"/></filter>
+        <filter id="fSoft"><feGaussianBlur stdDeviation="3"/></filter>
       </defs>
 
-      <ellipse id="glow" cx="290" cy="150" rx="210" ry="120" fill="url(#gGlow)" opacity="0"/>
-      <ellipse cx="290" cy="368" rx="196" ry="30" fill="var(--h-ground)" filter="url(#fBlur)"/>
+      <g id="ceu"></g>
+      <ellipse id="glow" cx="320" cy="150" rx="185" ry="105" fill="url(#gGlow)" opacity="0"/>
+      <g id="terreno"></g>
+      <ellipse cx="310" cy="330" rx="150" ry="26" fill="var(--w-shadow)" filter="url(#fBlur)"/>
+      <g id="predio"></g>
 
-      <!-- fios pontilhados + fluxo animado -->
-      <path class="wire" id="w-sol"  d="M225,150 L150,104 L72,104"/>
-      <path class="wire" id="w-casa" d="M243,306 L152,344 L72,344"/>
-      <path class="wire" id="w-rede" d="M418,286 L474,318 L520,318"/>
-      <path class="flux" id="f-sol"  d="M225,150 L150,104 L72,104" stroke="var(--sol)"  style="display:none"/>
-      <path class="flux" id="f-casa" d="M243,306 L152,344 L72,344" stroke="var(--casa)" style="display:none"/>
-      <path class="flux" id="f-rede" d="M418,286 L474,318 L520,318" stroke="var(--exp)" style="display:none"/>
+      <path class="wire" d="M249,142 L160,112 L26,112"/>
+      <path class="wire" d="M222,297 L152,336 L26,336"/>
+      <path class="wire" d="M378,255 L470,290 L582,290"/>
+      <path class="flux" id="f-sol"  d="M249,142 L160,112 L26,112" stroke="var(--sol)"  style="display:none"/>
+      <path class="flux" id="f-casa" d="M222,297 L152,336 L26,336" stroke="var(--casa)" style="display:none"/>
+      <path class="flux" id="f-rede" d="M378,255 L470,290 L582,290" stroke="var(--exp)" style="display:none"/>
 
-      <!-- casa isométrica -->
-      <g id="house">
-        <polygon points="150,190 290,260 290,360 150,290" fill="var(--h-left)"/>
-        <polygon points="290,260 430,190 430,290 290,360" fill="var(--h-right)"/>
-        <polygon points="290,120 430,190 290,260 150,190" fill="url(#gRoof)"/>
-        <g id="panels"></g>
-        <g id="windows"></g>
-        <!-- inversor -->
-        <polygon points="332,244 352,234 352,258 332,268" fill="var(--h-right)" stroke="var(--h-edge)" stroke-width="1"/>
-        <circle cx="342" cy="248" r="3.4" fill="var(--sol)" opacity=".9"/>
-        <!-- medidor -->
-        <polygon points="382,268 400,259 400,283 382,292" fill="var(--h-right)" stroke="var(--h-edge)" stroke-width="1"/>
-        <circle cx="391" cy="272" r="3" fill="var(--exp)" id="mled"/>
-        <polyline points="150,190 290,260 430,190" fill="none" stroke="var(--h-edge)" stroke-width="1.2"/>
-        <line x1="290" y1="260" x2="290" y2="360" stroke="var(--h-edge)" stroke-width="1.2"/>
-      </g>
-
-      <!-- rótulos -->
-      <text class="lbl" x="72" y="76" text-anchor="start">SOLAR</text>
-      <text class="val" x="72" y="97" text-anchor="start" id="n-sol">—<tspan> W</tspan></text>
-      <text class="lbl" x="72" y="366" text-anchor="start">CASA</text>
-      <text class="val" x="72" y="387" text-anchor="start" id="n-casa">—<tspan> W</tspan></text>
-      <text class="lbl" x="520" y="340" text-anchor="end" id="l-rede">REDE</text>
-      <text class="val" x="520" y="361" text-anchor="end" id="n-rede">—<tspan> W</tspan></text>
+      <text class="lbl" x="26" y="79">SOLAR</text>
+      <text class="val" x="26" y="100" id="n-sol">—<tspan> W</tspan></text>
+      <text class="lbl" x="26" y="362">CASA</text>
+      <text class="val" x="26" y="383" id="n-casa">—<tspan> W</tspan></text>
+      <text class="lbl" x="582" y="314" text-anchor="end" id="l-rede">REDE</text>
+      <text class="val" x="582" y="335" text-anchor="end" id="n-rede">—<tspan> W</tspan></text>
     </svg>
   </div>
 
@@ -217,6 +243,15 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
       <span style="margin-left:auto">Consumo total <b id="a-tw">—</b></span>
     </div>
     <div class="nota" id="janela">—</div>
+  </div>
+
+  <h2 class="sec">Fases do medidor · ao vivo</h2>
+  <div class="tw card" style="padding:10px 14px"><table><thead><tr>
+    <th>Fase</th><th>Tensão</th><th>Corrente</th><th>Potência</th></tr></thead>
+    <tbody id="fases"></tbody></table>
+    <div class="nota">O medidor informa só a intensidade de cada fase, sem o sentido. Como o inversor
+      é monofásico, uma fase pode estar injetando enquanto outra puxa da rede — por isso este total
+      costuma ser maior que o fluxo líquido mostrado acima.</div>
   </div>
 
   <div class="grid">
@@ -235,8 +270,10 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
       <div class="sub" id="k-aprs">—</div></div>
   </div>
 
-  <h2 class="sec">Consumo da casa por origem — hoje</h2>
-  <div class="card"><div class="chart tall"><canvas id="c-origem"></canvas></div></div>
+  <h2 class="sec">Consumo da casa por origem — últimas 24 h
+    <button class="zbtn" id="zreset" title="Restaurar zoom">Restaurar zoom</button></h2>
+  <div class="card"><div class="chart tall"><canvas id="c-origem"></canvas></div>
+    <div class="nota">Role ou dê pinça sobre o gráfico para aproximar; arraste para deslocar.</div></div>
 
   <h2 class="sec">Balanço de hoje</h2>
   <div class="grid">
@@ -250,14 +287,6 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
     <div class="card"><h3>Consumido da rede</h3><div class="big imp" id="h-imp">—<small>kWh</small></div></div>
   </div>
 
-  <h2 class="sec">Fases do medidor · ao vivo</h2>
-  <div class="tw card" style="padding:10px 14px"><table><thead><tr>
-    <th>Fase</th><th>Tensão</th><th>Corrente</th><th>Potência</th></tr></thead>
-    <tbody id="fases"></tbody></table>
-    <div class="nota">O medidor informa só a intensidade de cada fase, sem o sentido. Como o inversor
-      é monofásico, uma fase pode estar injetando enquanto outra puxa da rede — por isso este total
-      costuma ser maior que o fluxo líquido mostrado acima.</div>
-  </div>
 </section>
 
 <!-- ================= SOLAR ================= -->
@@ -354,6 +383,7 @@ document.querySelectorAll(".dock button").forEach(b=>b.onclick=()=>{
   if(b.dataset.t==="hist") carregarHist().catch(()=>{});
 });
 addEventListener("resize",moverInd);
+$("#zreset").onclick=()=>{ const c=charts["#c-origem"]; if(c&&c.resetZoom) c.resetZoom(); };
 
 /* WebKit nao aceita innerHTML em elementos SVG */
 function setSVG(el, markup){
@@ -361,36 +391,134 @@ function setSVG(el, markup){
   const doc=new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg">'+markup+'</svg>',"image/svg+xml");
   Array.from(doc.documentElement.childNodes).forEach(n=>el.appendChild(document.importNode(n,true)));
 }
-/* ---------- casa isométrica ---------- */
-const P0=[290,120], U=[140,70], V=[-140,70];
-const pt=(s,t)=>[P0[0]+U[0]*s+V[0]*t, P0[1]+U[1]*s+V[1]*t];
-function montarCasa(){
-  const g=[]; const N=4, M=3, ins=.07, gap=.16;
-  for(let i=0;i<N;i++) for(let j=0;j<M;j++){
-    const s0=ins+(1-2*ins)*(i+gap/2)/N, s1=ins+(1-2*ins)*(i+1-gap/2)/N;
-    const t0=ins+(1-2*ins)*(j+gap/2)/M, t1=ins+(1-2*ins)*(j+1-gap/2)/M;
-    const p=[pt(s0,t0),pt(s1,t0),pt(s1,t1),pt(s0,t1)].map(q=>q.map(n=>n.toFixed(1)).join(",")).join(" ");
-    g.push(`<polygon class="pan" points="${p}" fill="url(#gPan)"/>`);
-  }
-  setSVG($("#panels"), g.join(""));
+/* ---------- casa (replica da fachada real) ---------- */
+const K=17, OX=290, OY=340, SX=14.72, SY=8.5;
+const P=(x,y,z)=>[OX+(x-z)*SX, OY-(x+z)*SY-y*K];
+const pts=(...a)=>a.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+const fz=(x0,x1,y0,y1,z)=>pts(P(x0,y1,z),P(x1,y1,z),P(x1,y0,z),P(x0,y0,z));  // parede frontal
+const fx=(z0,z1,y0,y1,x)=>pts(P(x,y1,z0),P(x,y1,z1),P(x,y0,z1),P(x,y0,z0));  // parede lateral
+const fy=(x0,x1,z0,z1,y)=>pts(P(x0,y,z0),P(x1,y,z0),P(x1,y,z1),P(x0,y,z1));  // laje
+const pol=(p,f,e="")=>`<polygon points="${p}" fill="${f}" ${e}/>`;
 
-  // janelas nas duas paredes
-  const jan=[];
-  const par=(o,al,s0,s1,d0,d1)=>{
-    const P=(s,d)=>[o[0]+al[0]*s, o[1]+al[1]*s+d];
-    return [P(s0,d0),P(s1,d0),P(s1,d1),P(s0,d1)].map(q=>q.map(n=>n.toFixed(1)).join(",")).join(" ");
-  };
-  const E=[150,190], AE=[140,70];   // parede esquerda
-  const D=[290,260], AD=[140,-70];  // parede direita
-  [[.12,.34],[.44,.66],[.76,.94]].forEach(([a,b])=>{
-    jan.push(`<polygon class="win" points="${par(E,AE,a,b,18,46)}" fill="var(--h-win)" opacity=".85"/>`);
-    jan.push(`<polygon class="win" points="${par(E,AE,a,b,56,80)}" fill="var(--h-win)" opacity=".55"/>`);
+const W=6.4, D=4.8;
+const T1=3.10, L1=3.55, T2=6.20, L2=6.65, T3=8.80;   // niveis: teto terreo, laje, teto 1o, laje, topo
+const REC=1.00;                                       // recuo da sacada
+const OVH=0.22;                                       // balanco das lajes
+
+function montarCasa(){
+  const g=[];
+  const ed='stroke="var(--w-edge)" stroke-width=".8"';
+
+  /* terreno */
+  g.push(pol(fy(-1.6,8.0,-2.0,5.6,0), "var(--w-grass)"));
+  g.push(pol(fy(-0.9,7.4,-2.0,-0.06,0), "var(--w-pave)"));      // calcada em frente a fachada
+  g.push(pol(fy(-1.6,-0.06,-2.0,5.0,0), "var(--w-pave)"));      // faixa lateral
+  for(let i=0;i<9;i++){                                          // juntas do paver
+    const zz=-2.0+i*0.23;
+    g.push(`<line x1="${P(-0.9,0,zz)[0]}" y1="${P(-0.9,0,zz)[1]}" x2="${P(7.4,0,zz)[0]}" y2="${P(7.4,0,zz)[1]}" stroke="var(--w-pavel)" stroke-width=".7"/>`);
+  }
+
+  /* ---- volume superior (mais recuado => desenhado primeiro) ---- */
+  const tx0=1.40, tz0=0.85;
+  g.push(pol(fx(tz0,D,L2,T3,tx0), "url(#gSide)", ed));
+  g.push(pol(fz(tx0,W,L2,T3,tz0), "url(#gFace)", ed));
+  g.push(pol(fy(tx0,W,tz0,D,T3), "var(--w-top)", ed));
+  // faixa escura do coroamento
+  g.push(pol(fz(tx0,W,8.30,T3,tz0), "var(--w-dark)"));
+  g.push(pol(fx(tz0,D,8.30,T3,tx0), "var(--w-dark2)"));
+  // vao aberto (varanda descoberta) da direita
+  g.push(pol(fz(4.30,6.05,7.00,8.26,tz0), "url(#gVoid)"));
+  g.push(pol(fz(4.30,6.05,7.00,8.26,tz0), "none", 'stroke="var(--w-dark)" stroke-width="1.6"'));
+  // parede clara a esquerda do vao
+  g.push(pol(fz(tx0,4.10,7.00,8.26,tz0), "var(--w-face3)", 'opacity=".55"'));
+
+  /* paineis solares na laje */
+  const px0=1.75, px1=6.10, pz0=1.25, pz1=4.45, N=4, M=3, gp=0.10;
+  const dxp=(px1-px0)/N, dzp=(pz1-pz0)/M;
+  g.push(pol(fy(px0-.12,px1+.12,pz0-.12,pz1+.12,T3+0.02), "var(--w-panbase)"));
+  for(let i=0;i<N;i++) for(let j=0;j<M;j++){
+    const a=px0+i*dxp+gp, b=px0+(i+1)*dxp-gp, c=pz0+j*dzp+gp, d=pz0+(j+1)*dzp-gp;
+    g.push(pol(fy(a,b,c,d,T3+0.06), "url(#gPan)", 'class="pan"'));
+    for(let k=1;k<3;k++){
+      const t=a+(b-a)*k/3;
+      g.push(`<line x1="${P(t,T3+0.07,c)[0]}" y1="${P(t,T3+0.07,c)[1]}" x2="${P(t,T3+0.07,d)[0]}" y2="${P(t,T3+0.07,d)[1]}" stroke="var(--w-panln)" stroke-width=".6" opacity=".8"/>`);
+    }
+  }
+
+  /* ---- laje entre 1o andar e topo ---- */
+  g.push(pol(fx(-OVH,D,T2,L2,-OVH), "var(--w-side)", ed));
+  g.push(pol(fz(-OVH,W+OVH,T2,L2,-OVH), "var(--w-face)", ed));
+  g.push(pol(fy(-OVH,W+OVH,-OVH,D,L2), "var(--w-top)"));
+
+  /* ---- 1o andar: parede recuada escura + sacada ---- */
+  g.push(pol(fx(REC,D,L1,T2,0), "url(#gSide)", ed));           // lateral esquerda cheia
+  g.push(pol(fz(0,W,L1,T2,REC), "var(--w-dark)"));             // fundo da sacada (grafite)
+  // esquadrias escuras
+  g.push(pol(fz(0.45,2.15,4.25,5.95,REC-0.02), "url(#gGlass)", 'stroke="var(--w-frame)" stroke-width="1.4"'));
+  g.push(pol(fz(2.35,2.95,4.25,5.95,REC-0.02), "url(#gGlass)", 'stroke="var(--w-frame)" stroke-width="1.4"'));
+  g.push(pol(fz(4.55,6.05,4.25,5.95,REC-0.02), "url(#gGlass)", 'stroke="var(--w-frame)" stroke-width="1.4"'));
+  // faixa vertical de madeira
+  g.push(pol(fz(3.10,4.05,L1,T2,REC-0.03), "var(--w-wood)"));
+  for(let i=1;i<5;i++){
+    const yy=L1+(T2-L1)*i/5;
+    g.push(`<line x1="${P(3.10,yy,REC-0.04)[0]}" y1="${P(3.10,yy,REC-0.04)[1]}" x2="${P(4.05,yy,REC-0.04)[0]}" y2="${P(4.05,yy,REC-0.04)[1]}" stroke="var(--w-woodl)" stroke-width=".7" opacity=".65"/>`);
+  }
+  // piso da sacada
+  g.push(pol(fy(0,W,0,REC,L1), "var(--w-floor)"));
+
+  /* ---- terreo ---- */
+  g.push(pol(fx(0,D,0,T1,0), "url(#gSide)", ed));
+  g.push(pol(fz(0,W,0,T1,0), "url(#gFace)", ed));
+  // vao da garagem
+  g.push(pol(fz(0.35,3.10,0.06,2.62,0.01), "url(#gVoid)"));
+  g.push(pol(fy(0.35,3.10,0,1.5,0.06), "var(--w-void2)", 'opacity=".85"'));
+  // faixa de madeira da entrada
+  g.push(pol(fz(3.70,5.05,0,T1,-0.02), "var(--w-wood)"));
+  for(let i=1;i<6;i++){
+    const yy=T1*i/6;
+    g.push(`<line x1="${P(3.70,yy,-0.03)[0]}" y1="${P(3.70,yy,-0.03)[1]}" x2="${P(5.05,yy,-0.03)[0]}" y2="${P(5.05,yy,-0.03)[1]}" stroke="var(--w-woodl)" stroke-width=".7" opacity=".6"/>`);
+  }
+  // vidro lateral da entrada
+  g.push(pol(fz(3.28,3.66,0.08,2.52,0.01), "url(#gGlass)", 'stroke="var(--w-frame)" stroke-width="1.2"'));
+  // porta pivotante de madeira
+  g.push(pol(fz(4.05,4.75,0.06,2.50,-0.05), "var(--w-door)", 'stroke="var(--w-doorl)" stroke-width="1"'));
+  for(let i=1;i<5;i++){
+    const yy=0.06+(2.44)*i/5;
+    g.push(`<line x1="${P(4.05,yy,-0.06)[0]}" y1="${P(4.05,yy,-0.06)[1]}" x2="${P(4.75,yy,-0.06)[0]}" y2="${P(4.75,yy,-0.06)[1]}" stroke="var(--w-doorl)" stroke-width=".8" opacity=".8"/>`);
+  }
+  g.push(`<line x1="${P(4.60,0.85,-0.07)[0]}" y1="${P(4.60,0.85,-0.07)[1]}" x2="${P(4.60,1.85,-0.07)[0]}" y2="${P(4.60,1.85,-0.07)[1]}" stroke="var(--w-inox)" stroke-width="2" stroke-linecap="round"/>`);
+  // janela do terreo
+  g.push(pol(fz(5.25,5.95,0.85,2.42,0.01), "url(#gGlass)", 'stroke="var(--w-frame)" stroke-width="1.4"'));
+  // medidor + inversor
+  g.push(pol(fz(6.02,6.32,1.45,2.25,-0.02), "var(--w-box)", 'stroke="var(--w-edge)" stroke-width=".8"'));
+  const led=P(6.17,1.62,-0.04);
+  g.push(`<circle cx="${led[0].toFixed(1)}" cy="${led[1].toFixed(1)}" r="2.6" fill="var(--exp)" id="mled"/>`);
+
+  /* ---- laje entre terreo e 1o andar ---- */
+  g.push(pol(fx(-OVH,D,T1,L1,-OVH), "var(--w-side)", ed));
+  g.push(pol(fz(-OVH,W+OVH,T1,L1,-OVH), "var(--w-face)", ed));
+
+  /* ---- guarda-corpo de vidro da sacada ---- */
+  g.push(pol(fz(-OVH,W+OVH,L1,L1+1.02,-OVH), "var(--w-rail)", 'opacity=".42"'));
+  for(let i=0;i<=10;i++){
+    const t=-OVH+(W+2*OVH)*i/10;
+    g.push(`<line x1="${P(t,L1+0.02,-OVH-0.01)[0]}" y1="${P(t,L1+0.02,-OVH-0.01)[1]}" x2="${P(t,L1+0.62,-OVH-0.01)[0]}" y2="${P(t,L1+0.62,-OVH-0.01)[1]}" stroke="var(--w-inox)" stroke-width="1.5" stroke-linecap="round"/>`);
+  }
+  g.push(`<line x1="${P(-OVH,L1+1.02,-OVH)[0]}" y1="${P(-OVH,L1+1.02,-OVH)[1]}" x2="${P(W+OVH,L1+1.02,-OVH)[0]}" y2="${P(W+OVH,L1+1.02,-OVH)[1]}" stroke="var(--w-inox)" stroke-width="1.6"/>`);
+
+  setSVG($("#predio"), g.join(""));
+  setSVG($("#terreno"), "");
+  montarCeu();
+}
+
+function montarCeu(){
+  const c=[];
+  c.push('<circle id="astro" cx="512" cy="72" r="21" fill="var(--w-astro)" opacity=".92"/>');
+  c.push('<circle cx="512" cy="72" r="34" fill="var(--w-astro)" opacity=".16" filter="url(#fSoft)"/>');
+  [[120,58,26],[176,50,18],[452,142,20],[404,132,14]].forEach(([x,y,r])=>{
+    c.push(`<ellipse cx="${x}" cy="${y}" rx="${r*1.7}" ry="${r*.72}" fill="var(--w-cloud)" opacity=".5"/>`);
   });
-  [[.10,.28],[.36,.54]].forEach(([a,b])=>{
-    jan.push(`<polygon class="win" points="${par(D,AD,a,b,16,44)}" fill="var(--h-win)" opacity=".8"/>`);
-    jan.push(`<polygon class="win" points="${par(D,AD,a,b,54,78)}" fill="var(--h-win)" opacity=".5"/>`);
-  });
-  setSVG($("#windows"), jan.join(""));
+  setSVG($("#ceu"), c.join(""));
 }
 
 /* ---------- gráficos ---------- */
@@ -483,16 +611,24 @@ function pintarHoje(d){
 
 function desenharOrigem(a){
   ultOrigem=a;
-  draw("#c-origem",{type:"line",data:{labels:a.map(x=>x.t),datasets:[
+  const rot=a.map(x=>x.iso? x.iso.slice(11,16)+"h" : x.t);
+  const dia=a.map(x=>x.iso? x.iso.slice(8,10)+"/"+x.iso.slice(5,7) : "");
+  draw("#c-origem",{type:"line",data:{labels:rot,datasets:[
     {label:"Do sol",data:a.map(x=>x.solar),borderColor:cssv("--sol"),backgroundColor:"rgba(251,191,36,.35)",
       fill:true,tension:.3,pointRadius:0,borderWidth:1.5},
     {label:"Da rede",data:a.map(x=>x.rede),borderColor:cssv("--imp"),backgroundColor:"rgba(248,113,113,.35)",
       fill:true,tension:.3,pointRadius:0,borderWidth:1.5}]},
     options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
-      plugins:{...legenda,tooltip:{callbacks:{
-        label:i=>` ${i.dataset.label}: ${nf(i.parsed.y)} W`,
-        footer:it=>"Total: "+nf(it.reduce((a,b)=>a+b.parsed.y,0))+" W"}}},
-      scales:{x:{ticks:{maxTicksLimit:9,autoSkip:true}},
+      plugins:{...legenda,
+        tooltip:{callbacks:{
+          title:it=>(dia[it[0].dataIndex]?dia[it[0].dataIndex]+" ":"")+rot[it[0].dataIndex],
+          label:i=>` ${i.dataset.label}: ${nf(i.parsed.y)} W`,
+          footer:it=>"Total: "+nf(it.reduce((a,b)=>a+b.parsed.y,0))+" W"}},
+        zoom:{
+          limits:{x:{minRange:6}},
+          pan:{enabled:true,mode:"x",modifierKey:null},
+          zoom:{wheel:{enabled:true,speed:.09},pinch:{enabled:true},drag:{enabled:false},mode:"x"}}},
+      scales:{x:{ticks:{maxTicksLimit:10,autoSkip:true,maxRotation:0}},
         y:{stacked:true,beginAtZero:true,title:{display:true,text:"W"}}}}});
 }
 function desenharCurva(c){
@@ -584,7 +720,7 @@ async function tickRapido(){
 async function tickLento(){
   try{
     pintarHoje(await api("api/today"));
-    const o=await api("api/origem"); if(o.length) desenharOrigem(o);
+    const o=await api("api/origem?horas=24"); if(o.length) desenharOrigem(o);
     if($("#t-solar").classList.contains("on")) await carregarSolar();
   }catch(_){}
 }
