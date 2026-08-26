@@ -368,20 +368,16 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
       <div><span class="kv"><i style="background:var(--sol)"></i><b id="g-cap">—</b></span><span class="kl">Capacidade</span></div></div>
     </div>
   </div>
-  <div class="card" style="margin-bottom:12px">
-    <div class="ch"><h3>Resumo agora</h3><span class="u">/ tempo real</span></div>
+  <div class="self">
     <div class="top">
       <span class="pc" id="a-pc">—</span>
-      <span class="lb">do consumo da casa vindo do <b class="sol">sol</b>;
-        o resto vem da rede</span>
+      <span class="lb">do consumo da casa vindo do <b class="sol">sol</b> agora</span>
     </div>
-    <div class="rows">
-      <div class="rw"><span><span class="rn" id="h-rede">Rede</span>
-        <span class="rs" id="k-redes">—</span></span>
-        <b class="rv" id="k-rede">—<small>W</small></b></div>
-      <div class="rw"><span><span class="rn">Aproveitamento da geração</span>
-        <span class="rs" id="k-aprs">—</span></span>
-        <b class="rv" id="k-apr">—<small>%</small></b></div>
+    <div class="split"><i class="s" id="a-s" style="width:0"></i><i class="r" id="a-r" style="width:0"></i></div>
+    <div class="leg">
+      <span><i class="sq" style="background:#fbbf24"></i>Solar <b id="a-sw">—</b></span>
+      <span><i class="sq" style="background:var(--casa)"></i>Rede <b id="a-rw">—</b></span>
+      <span style="margin-left:auto">Consumo total <b id="a-tw">—</b></span>
     </div>
     <div class="nota" id="janela">—</div>
   </div>
@@ -393,6 +389,22 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
     <div class="nota">O medidor informa só a intensidade de cada fase, sem o sentido. Como o inversor
       é monofásico, uma fase pode estar injetando enquanto outra puxa da rede — por isso este total
       costuma ser maior que o fluxo líquido mostrado acima.</div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><h3>Gerando agora</h3>
+      <div class="big sol" id="k-ger">—<small>W</small></div>
+      <div class="bar"><i id="b-ger" style="background:var(--sol);width:0"></i></div>
+      <div class="sub" id="k-gerp">—</div></div>
+    <div class="card"><h3>Consumo da casa</h3>
+      <div class="big casa" id="k-casa">—<small>W</small></div>
+      <div class="sub" id="k-auto">—</div></div>
+    <div class="card"><h3 id="h-rede">Rede</h3>
+      <div class="big" id="k-rede">—<small>W</small></div>
+      <div class="sub" id="k-redes">—</div></div>
+    <div class="card"><h3>Aproveitamento da geração</h3>
+      <div class="big" id="k-apr">—<small>%</small></div>
+      <div class="sub" id="k-aprs">—</div></div>
   </div>
 
   <h2 class="sec">Consumo da casa por origem — últimas 24 h
@@ -887,6 +899,11 @@ function pintarLive(L){
   const aprove = d.hoje?.aproveitamento ?? (ger ? (100 * sw / ger) : 0);
   const saldoRede = exp ? Math.abs(L.rede_w||0) : (L.rede_w||0);
   const totalCasa = casa || (sw + rw);
+  $("#a-sw").textContent = nf(sw)+" W";
+  $("#a-rw").textContent = nf(rw)+" W";
+  $("#a-tw").textContent = nf(totalCasa)+" W";
+  $("#a-s").style.width = totalCasa>0 ? (100*sw/totalCasa)+"%" : "0%";
+  $("#a-r").style.width = totalCasa>0 ? (100*rw/totalCasa)+"%" : "0%";
   $("#g-sw").textContent = nf(sw);
   $("#g-rw").textContent = nf(rw);
   $("#g-tot").textContent = nf(totalCasa);
