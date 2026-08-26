@@ -151,7 +151,7 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .ch{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .ch h3{margin:0;font-size:14.5px;font-weight:650;color:var(--txt);text-transform:none;letter-spacing:-.2px}
 .ch .u{font-size:12px;font-weight:500;color:var(--dim)}
-.ch .go{margin-left:auto;color:var(--dim);font-size:14px;line-height:1}
+.ch .go{display:none;margin-left:auto;color:var(--dim);font-size:14px;line-height:1}
 .keys{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:2px}
 .keys>div{display:flex;flex-direction:column;gap:1px}
 .keys .kv{display:flex;align-items:center;gap:7px;font-family:inherit;font-size:21px;font-weight:700;letter-spacing:-.6px;
@@ -315,8 +315,8 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
   </div>
 
   <div class="gr2">
-    <div class="card">
-      <div class="ch"><h3>Consumo da casa</h3><span class="u">/ W</span><span class="go">↗</span></div>
+    <div class="card" id="consumo-card" style="cursor:pointer">
+      <div class="ch"><h3>Consumo da casa / W</h3><span class="u"></span><span class="go">↗</span></div>
       <div class="keys">
         <div><span class="kv"><i style="background:var(--sol)"></i><b id="g-sw">—</b></span>
              <span class="kl">Do sol</span></div>
@@ -358,19 +358,7 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
     <div class="ch"><h3>Geração</h3><span class="u">/ kWh · últimas 24 h</span><span class="go">↗</span></div>
     <div class="big sol" id="p-tot">—<small>kWh</small></div>
     <div class="bars" id="p-bars"></div>
-    <div class="bx" id="p-eixo"><span>—</span><span>—</span><span>—</span><span>—</span><span>agora</span></div>
-  </div>
-
-  <div class="card" id="consumo-card" style="margin-bottom:12px;cursor:pointer">
-    <h3>Consumo da casa / W</h3>
-    <div class="gauge"><svg viewBox="0 0 200 112"><path class="tk" d="M22,100 A78,78 0 0 1 178,100"/>
-      <path class="sg" id="g1-a" d="M22,100 A78,78 0 0 1 178,100" stroke="var(--sol)" stroke-dasharray="0 999"/>
-      <path class="sg" id="g1-b" d="M22,100 A78,78 0 0 1 178,100" stroke="var(--casa)" stroke-dasharray="0 999"/></svg>
-      <div class="gv"><b id="g-tot">—</b><span id="g-sub">consumo total agora</span></div></div>
-    <div class="keys"><div><span class="kv"><i style="background:var(--sol)"></i><b id="g-sw">—</b></span><span class="kl">Do sol</span></div>
-    <div><span class="kv"><i style="background:var(--casa)"></i><b id="g-rw">—</b></span><span class="kl">Da rede</span></div></div>
-  </div>
-  <div class="self">
+    <div class="bx" id="p-eixo"><span>—</span><span>—</span><span>—</span><span>—  <div class="self">
     <div class="top">
       <span class="pc" id="a-pc">—</span>
       <span class="lb">do consumo da casa vindo do <b class="sol">sol</b> agora</span>
