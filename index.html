@@ -80,7 +80,7 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 @keyframes beat{50%{transform:scale(2.1);opacity:.5}}
 .ver{margin-left:auto;font-size:10.5px;font-weight:600;color:var(--dim);
   border:1px solid var(--line);border-radius:20px;padding:2px 8px}
-.zbtn{float:right;text-transform:none;letter-spacing:0;font:600 11px inherit;color:var(--dim);
+.zbtn{float:right;text-transform:none;letter-spacing:0;font-family:inherit;font-size:11px;font-weight:600;color:var(--dim);
   background:var(--gcard2);border:1px solid var(--glassb);border-radius:20px;padding:3px 10px;cursor:pointer;
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .zbtn:active{transform:scale(.94)}
@@ -99,7 +99,7 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
   border:1px solid var(--glassb);
   box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.16)}
 .dock button{position:relative;z-index:2;border:0;background:none;color:var(--dim);
-  font:600 16px inherit;letter-spacing:-.2px;padding:15px 28px;border-radius:999px;cursor:pointer;
+  font-family:inherit;font-size:16px;font-weight:600;letter-spacing:-.2px;padding:15px 28px;border-radius:999px;cursor:pointer;
   white-space:nowrap;transition:color .25s}
 .dock button.on{color:var(--txt)}
 .dock .ind{position:absolute;top:7px;bottom:7px;left:0;width:0;border-radius:999px;
@@ -158,7 +158,7 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .ch .go{margin-left:auto;color:var(--dim);font-size:14px;line-height:1}
 .keys{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:2px}
 .keys>div{display:flex;flex-direction:column;gap:1px}
-.keys .kv{display:flex;align-items:center;gap:7px;font:700 21px inherit;letter-spacing:-.6px;
+.keys .kv{display:flex;align-items:center;gap:7px;font-family:inherit;font-size:21px;font-weight:700;letter-spacing:-.6px;
   font-variant-numeric:tabular-nums}
 .keys .kl{font-size:11.5px;color:var(--dim);padding-left:16px}
 .keys .kv i{width:8px;height:8px;border-radius:50%;flex:none}
@@ -178,7 +178,7 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .bars i.pk{background:var(--exp);opacity:1}
 .bx{display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim);
   font-variant-numeric:tabular-nums;border-top:1px solid var(--gline);padding-top:7px}
-.peak{position:absolute;transform:translateX(-50%);top:-6px;font:600 10.5px inherit;
+.peak{position:absolute;transform:translateX(-50%);top:-6px;font-family:inherit;font-size:10.5px;font-weight:600;
   background:var(--glasson);border:1px solid var(--glassb);border-radius:7px;padding:2px 7px;
   white-space:nowrap;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .rows{margin-top:4px}
@@ -186,20 +186,20 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .rows .rw:last-child{border:0;padding-bottom:0}
 .rows .rn{font-size:13.5px;font-weight:600}
 .rows .rs{font-size:11px;color:var(--dim);display:block;margin-top:2px}
-.rows .rv{margin-left:auto;font:700 14px inherit;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rows .rv{margin-left:auto;font-family:inherit;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 
 /* ---------- ajustes ---------- */
 .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
 .fld{display:flex;flex-direction:column;gap:5px}
 .fld label{font-size:11px;font-weight:650;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
 .fld input,.fld select{background:var(--gcard2);border:1px solid var(--glassb);color:var(--txt);
-  border-radius:11px;padding:10px 12px;font:14px inherit;font-variant-numeric:tabular-nums;
+  border-radius:11px;padding:10px 12px;font-family:inherit;font-size:14px;font-variant-numeric:tabular-nums;
   outline:none;transition:border-color .2s}
 .fld input:focus,.fld select:focus{border-color:var(--casa)}
 .fld .hint{font-size:11px;color:var(--dim);line-height:1.35}
 .acoes{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:14px}
 .bt{border:1px solid var(--glassb);background:var(--gcard2);color:var(--txt);border-radius:11px;
-  padding:10px 18px;font:600 13.5px inherit;cursor:pointer;transition:.2s}
+  padding:10px 18px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:.2s}
 .bt:active{transform:scale(.96)}
 .bt.pri{background:var(--txt);border-color:var(--txt);color:var(--bg)}
 .msg{font-size:12.5px;font-weight:600}
@@ -234,7 +234,7 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 #gate form{background:var(--gcard);border:1px solid var(--glassb);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);padding:28px;border-radius:18px;width:min(320px,86vw);text-align:center}
 #gate input{width:100%;margin:16px 0 12px;padding:12px;border-radius:12px;border:1px solid var(--glassb);
   background:var(--gcard2);color:var(--txt);font-size:16px;text-align:center}
-#gate button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--casa);color:var(--bg);font:600 15px inherit;cursor:pointer}
+#gate button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--casa);color:var(--bg);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
 .err{color:var(--imp);font-size:12.5px;margin-top:10px;min-height:16px}
 @media(max-width:520px){.wrap{padding:12px}.big{font-size:26px}.self .pc{font-size:38px}}
 </style>
