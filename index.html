@@ -866,7 +866,7 @@ const FIO_REDE="M378,255 L428,231 L505,272 L582,290";
 const FIO_REDE_INV="M582,290 L505,272 L428,231 L378,255";
 let capacidade=5.004, tarifa=0.8261;
 function pintarLive(L){
-  window.__lastLive=L;
+
   $("#dot").classList.remove("off"); $("#dot").classList.add("beat");
   setTimeout(()=>$("#dot").classList.remove("beat"),500);
   $("#stamp").textContent=new Date(L.ts).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
@@ -935,8 +935,8 @@ function pintarLive(L){
 }
 
 function pintarHoje(d){
-  window.__lastToday=d;
-  const h=d.hoje; tarifa=d.live?.price||tarifa;
+
+  const h=d.hoje||{}; tarifa=d.live?.price||tarifa;
   setv("#h-ger",nf(h.geracao,1),"kWh"); $("#h-gerbrl").textContent=brl(d.economia);
   setv("#h-casa",nf(h.casa,1),"kWh");
   $("#h-casas").textContent=`${nf(h.casa_solar,1)} do sol + ${nf(h.casa_rede,1)} da rede`;
