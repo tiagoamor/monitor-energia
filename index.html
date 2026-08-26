@@ -30,7 +30,7 @@
   --w-pave:#1c2436; --w-pavel:#28324a; --w-grass:#13301c;
   --w-shadow:rgba(0,0,0,.5); --w-box:#2c3856;
   --w-pan1:#0f1d38; --w-pan2:#22406f; --w-panln:#4a6da8; --w-panbase:#2b3550;
-  --w-astro:#e8eefc; --w-cloud:#25314c;
+  --w-astro:#e8eefc; --w-cloud:#28334f; --w-cloudo:.32; --w-pole:#4a5673;
 }
 [data-theme="light"]{
   --bg:#eef2f9; --bg2:#f7f9fd; --card:#ffffff; --card2:#f1f5fb; --line:#dfe6f1;
@@ -52,7 +52,7 @@
   --w-pave:#cfd4dc; --w-pavel:#bcc2cc; --w-grass:#86b563;
   --w-shadow:rgba(35,55,90,.22); --w-box:#b9c0cb;
   --w-pan1:#2b3f68; --w-pan2:#4f6b9c; --w-panln:#8ea6c9; --w-panbase:#9aa5b5;
-  --w-astro:#ffd45e; --w-cloud:#ffffff;
+  --w-astro:#ffd45e; --w-cloud:#ffffff; --w-cloudo:.62; --w-pole:#8b94a3;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--txt);
@@ -210,17 +210,17 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
       </defs>
 
       <g id="ceu"></g>
-      <ellipse id="glow" cx="320" cy="150" rx="185" ry="105" fill="url(#gGlow)" opacity="0"/>
+      <ellipse id="glow" cx="322" cy="162" rx="172" ry="92" fill="url(#gGlow)" opacity="0"/>
       <g id="terreno"></g>
       <ellipse cx="310" cy="330" rx="150" ry="26" fill="var(--w-shadow)" filter="url(#fBlur)"/>
       <g id="predio"></g>
 
       <path class="wire" d="M249,142 L160,112 L26,112"/>
       <path class="wire" d="M222,297 L152,336 L26,336"/>
-      <path class="wire" d="M378,255 L470,290 L582,290"/>
+      <path class="wire" d="M378,255 L428,231 L505,272 L582,290"/>
       <path class="flux" id="f-sol"  d="M249,142 L160,112 L26,112" stroke="var(--sol)"  style="display:none"/>
       <path class="flux" id="f-casa" d="M222,297 L152,336 L26,336" stroke="var(--casa)" style="display:none"/>
-      <path class="flux" id="f-rede" d="M378,255 L470,290 L582,290" stroke="var(--exp)" style="display:none"/>
+      <path class="flux" id="f-rede" d="M378,255 L428,231 L505,272 L582,290" stroke="var(--exp)" style="display:none"/>
 
       <text class="lbl" x="26" y="79">SOLAR</text>
       <text class="val" x="26" y="100" id="n-sol">—<tspan> W</tspan></text>
@@ -410,12 +410,12 @@ function montarCasa(){
   const ed='stroke="var(--w-edge)" stroke-width=".8"';
 
   /* terreno */
-  g.push(pol(fy(-1.6,8.0,-2.0,5.6,0), "var(--w-grass)"));
-  g.push(pol(fy(-0.9,7.4,-2.0,-0.06,0), "var(--w-pave)"));      // calcada em frente a fachada
-  g.push(pol(fy(-1.6,-0.06,-2.0,5.0,0), "var(--w-pave)"));      // faixa lateral
+  g.push(pol(fy(-2.2,8.6,-2.6,6.2,0), "var(--w-grass)"));
+  g.push(pol(fy(-0.5,7.0,-1.55,-0.06,0), "var(--w-pave)"));      // calcada em frente a fachada
+  g.push(pol(fy(-1.15,-0.06,-1.55,4.4,0), "var(--w-pave)"));      // faixa lateral
   for(let i=0;i<9;i++){                                          // juntas do paver
-    const zz=-2.0+i*0.23;
-    g.push(`<line x1="${P(-0.9,0,zz)[0]}" y1="${P(-0.9,0,zz)[1]}" x2="${P(7.4,0,zz)[0]}" y2="${P(7.4,0,zz)[1]}" stroke="var(--w-pavel)" stroke-width=".7"/>`);
+    const zz=-1.5+i*0.17;
+    g.push(`<line x1="${P(-0.5,0,zz)[0]}" y1="${P(-0.5,0,zz)[1]}" x2="${P(7.0,0,zz)[0]}" y2="${P(7.0,0,zz)[1]}" stroke="var(--w-pavel)" stroke-width=".7"/>`);
   }
 
   /* ---- volume superior (mais recuado => desenhado primeiro) ---- */
@@ -506,6 +506,12 @@ function montarCasa(){
   }
   g.push(`<line x1="${P(-OVH,L1+1.02,-OVH)[0]}" y1="${P(-OVH,L1+1.02,-OVH)[1]}" x2="${P(HW+OVH,L1+1.02,-OVH)[0]}" y2="${P(HW+OVH,L1+1.02,-OVH)[1]}" stroke="var(--w-inox)" stroke-width="1.6"/>`);
 
+  /* poste da concessionaria */
+  const pb=P(8.05,0,-1.35), pt2=P(8.05,3.55,-1.35), pc=P(8.05,3.05,-1.35);
+  g.push(`<line x1="${pb[0].toFixed(1)}" y1="${pb[1].toFixed(1)}" x2="${pt2[0].toFixed(1)}" y2="${pt2[1].toFixed(1)}" stroke="var(--w-pole)" stroke-width="4.5" stroke-linecap="round"/>`);
+  g.push(`<line x1="${(pc[0]-13).toFixed(1)}" y1="${(pc[1]+2).toFixed(1)}" x2="${(pc[0]+13).toFixed(1)}" y2="${(pc[1]-2).toFixed(1)}" stroke="var(--w-pole)" stroke-width="2.6" stroke-linecap="round"/>`);
+  g.push(`<ellipse cx="${pb[0].toFixed(1)}" cy="${pb[1].toFixed(1)}" rx="9" ry="4" fill="var(--w-shadow)"/>`);
+
   setSVG($("#predio"), g.join(""));
   setSVG($("#terreno"), "");
   montarCeu();
@@ -513,10 +519,10 @@ function montarCasa(){
 
 function montarCeu(){
   const c=[];
-  c.push('<circle id="astro" cx="512" cy="72" r="21" fill="var(--w-astro)" opacity=".92"/>');
-  c.push('<circle cx="512" cy="72" r="34" fill="var(--w-astro)" opacity=".16" filter="url(#fSoft)"/>');
-  [[120,58,26],[176,50,18],[452,142,20],[404,132,14]].forEach(([x,y,r])=>{
-    c.push(`<ellipse cx="${x}" cy="${y}" rx="${r*1.7}" ry="${r*.72}" fill="var(--w-cloud)" opacity=".5"/>`);
+  c.push('<circle id="astro" cx="474" cy="70" r="20" fill="var(--w-astro)" opacity=".92"/>');
+  c.push('<circle cx="474" cy="70" r="33" fill="var(--w-astro)" opacity=".17" filter="url(#fSoft)"/>');
+  [[124,52,25],[178,46,17],[520,140,19],[476,131,13]].forEach(([x,y,r])=>{
+    c.push(`<ellipse cx="${x}" cy="${y}" rx="${r*1.7}" ry="${r*.72}" fill="var(--w-cloud)" opacity="var(--w-cloudo)"/>`);
   });
   setSVG($("#ceu"), c.join(""));
 }
