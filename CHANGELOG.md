@@ -4,6 +4,29 @@ Todas as mudanças relevantes deste projeto. O formato segue
 [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o
 versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 
+## [2.1.0] — 2026-08-26
+
+### Adicionado
+- Tela de **Ajustes** (engrenagem no cabeçalho) para informar as credenciais da
+  Tuya e da SolisCloud pela própria interface, sem mexer em variáveis de ambiente.
+- Botão **Testar conexão**, que valida Tuya e SolisCloud separadamente e mostra
+  a leitura atual de cada uma (ou o erro devolvido).
+- Troca de senha pela interface, com validação de tamanho mínimo e confirmação.
+- Endpoints `GET/POST /api/config`, `POST /api/password` e `GET /api/test`.
+
+### Alterado
+- As credenciais passaram a ser lidas da tabela `kv` (chave `config`), com as
+  variáveis de ambiente servindo apenas de valor inicial. Salvar novas
+  credenciais invalida os caches dependentes.
+- A senha do app agora é guardada como hash PBKDF2-SHA256 (120 mil iterações)
+  com salt aleatório, comparada em tempo constante.
+- As chaves de cache passaram a incluir usina e inversor, permitindo trocar de
+  instalação sem servir dados antigos.
+
+### Segurança
+- Segredos nunca voltam em claro pela API: a leitura devolve `••••` + 4 dígitos.
+  Salvar um campo mascarado (ou vazio) mantém o valor já gravado.
+
 ## [2.0.0] — 2026-08-26
 
 ### Adicionado

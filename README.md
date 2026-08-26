@@ -80,19 +80,36 @@ VERSION  CHANGELOG.md
 | `GET /api/inverter` | Dados do inversor |
 | `GET /api/phases` | Fases do medidor |
 | `POST /api/collect` | Coleta agendada (pg_cron) |
+| `GET/POST /api/config` | Lê/grava as credenciais (segredos mascarados na leitura) |
+| `POST /api/password` | Troca a senha do app |
+| `GET /api/test` | Testa Tuya e SolisCloud separadamente |
 
 Todas exigem `?k=<APP_PASSWORD>`.
 
 ## Configuração
 
-Segredos da Edge Function (nenhum fica no repositório):
+Todas as credenciais são informadas pela própria interface: entre no app e
+clique na **engrenagem** do cabeçalho para abrir a tela de **Ajustes**.
 
-```
-APP_PASSWORD
-TUYA_ID  TUYA_KEY  TUYA_DEVICE
-SOLIS_KEY_ID  SOLIS_KEY_SECRET  SOLIS_STATION  SOLIS_INVERTER  SOLIS_INVERTER_SN
-SOLIS_BASE
-```
+- **Tuya / Smart Life** — Access ID, Access Secret, ID do dispositivo (medidor)
+  e data center. Obtidos em [iot.tuya.com](https://iot.tuya.com) (Cloud → Projeto).
+- **SolisCloud** — Key ID, Key Secret, ID da usina, ID e número de série do
+  inversor. Obtidos no app SolisCloud (Serviço → Gerenciamento de API).
+- **Senha do app** — pode ser trocada na mesma tela. É guardada como hash
+  PBKDF2-SHA256 (120 mil iterações) no banco.
+
+O botão **Testar conexão** valida cada serviço isoladamente e mostra o erro
+retornado por cada um.
+
+> Nada disso fica no repositório: as credenciais são gravadas na tabela `kv` do
+> seu próprio projeto Supabase, protegida por RLS e acessível apenas pela Edge
+> Function com a service role. Na leitura, os segredos voltam mascarados
+> (`••••1234`).
+
+Na primeira execução, se a tabela ainda estiver vazia, a função usa como valores
+iniciais as variáveis de ambiente `APP_PASSWORD`, `TUYA_ID`, `TUYA_KEY`,
+`TUYA_DEVICE`, `SOLIS_KEY_ID`, `SOLIS_KEY_SECRET`, `SOLIS_STATION`,
+`SOLIS_INVERTER`, `SOLIS_INVERTER_SN` e `SOLIS_BASE`, caso existam.
 
 Deploy:
 
