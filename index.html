@@ -866,25 +866,30 @@ function pintarLive(L){
     : "Calibrando a medição de fluxo…";
 
   // cards
-  const casaHoje = h.casa || (h.casa_solar || 0) + (h.casa_rede || 0);
-  const autoHoje = h.autossuficiencia ?? (h.casa ? 100 * (h.casa_solar || 0) / h.casa : 0);
+  $("#a-pc").textContent = `${nf(L.autossuficiencia||0,0)}%`;
+  const autoHoje = d.hoje?.autossuficiencia ?? (casa ? (100 * sw / casa) : 0);
+  const aprove = d.hoje?.aproveitamento ?? (ger ? (100 * sw / ger) : 0);
+  const saldoRede = exp ? Math.abs(L.rede_w||0) : (L.rede_w||0);
   $("#h-rede").textContent=exp?"Injetando na rede":"Consumindo da rede";
   $("#k-rede").className="rv "+(exp?"exp":"casa");
-  setv("#k-rede",nf(Math.abs(L.rede_w||0)),"W");
+  setv("#k-rede",nf(saldoRede),"W");
   $("#k-redes").textContent = imp>5&&inj>5
     ? `${nf(inj)} W saindo e ${nf(imp)} W entrando ao mesmo tempo`
     : exp ? "excedente exportado" : "complemento importado";
-  setv("#k-apr",L.aproveitamento,"%");
+  setv("#k-apr",nf(aprove,0),"%");
   pintarGauges(L);
   $("#k-aprs").textContent = ger>0 ? `${nf(sw)} W ficam em casa, ${nf(inj)} W vão pra rede` : "sem geração agora";
   $("#a-pc").textContent = `${nf(autoHoje,0)}%`;
   $("#h-self").textContent = `${nf(autoHoje,0)}%`;
 
-  $("#fases").innerHTML=["a","b","c"].map(k=>{
-    const f=L.fases[k];
+  const fases = L.fases || {};
+  const rows = ["a","b","c"].map(k=>{
+    const f=fases[k]||{};
     return `<tr><td><b>${k.toUpperCase()}</b></td><td>${nf(f.v,1)} V</td>
       <td>${nf(f.a,2)} A</td><td><b>${nf(f.w)} W</b></td></tr>`;
-  }).join("")+`<tr><td><b>Total</b></td><td></td><td></td><td><b>${nf(L.medidor_w)} W</b></td></tr>`;
+  });
+  const total = (fases.a?.w||0)+(fases.b?.w||0)+(fases.c?.w||0);
+  $("#fases").innerHTML=rows.join("")+`<tr><td><b>Total</b></td><td></td><td></td><td><b>${nf(total)} W</b></td></tr>`;
 }
 
 function pintarHoje(d){
