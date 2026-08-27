@@ -7,6 +7,35 @@ versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 > **Nota:** a partir daqui o versionamento foi reiniciado em `0.2.0`, a pedido.
 > As entradas `2.x` abaixo são o histórico anterior do projeto.
 
+## [0.2.2] — 2026-08-27
+
+### Adicionado
+- Cartão de **Consumo — últimas 24 h**, ao lado do de Geração 24 h, com o
+  mesmo estilo de barras e total em kWh.
+- Deslizar o dedo (ou arrastar o mouse) sobre as barras de Geração 24 h e
+  Consumo 24 h mostra o horário e o valor exato daquele ponto.
+- Modal "Fases do medidor — ao vivo": clicar no cartão "Consumo da casa / W"
+  abre a leitura das 3 fases por cima da tela, com o fundo desfocado; clicar
+  fora fecha o modal.
+- Seta de "abrir" (↗) agora só aparece nos cartões que realmente são
+  clicáveis.
+
+### Alterado
+- Gradiente de fundo e transparência dos cartões reforçados para deixar o
+  efeito *liquid glass* mais evidente (mais desfoque e saturação).
+
+### Corrigido
+- Cartão duplicado de "Consumo da casa" removido (só o primeiro, clicável,
+  permanece).
+- `ReferenceError` em `pintarLive` que deixava todos os cartões da tela
+  inicial vazios sem nenhum aviso.
+- Referência a um elemento removido (`#h-rede`) que travava a atualização do
+  resumo; tabela de fases agora só é preenchida se existir na página.
+- O cartão de Consumo 24 h havia sido publicado com o código dentro do
+  bloco de estilos por engano (nunca rodava); função movida para o lugar
+  certo e o HTML do cartão, que também tinha ficado corrompido, foi
+  reconstruído.
+
 ## [0.2.1] — 2026-08-26
 
 ### Alterado
