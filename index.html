@@ -152,6 +152,7 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .ch h3{margin:0;font-size:14.5px;font-weight:650;color:var(--txt);text-transform:none;letter-spacing:-.2px}
 .ch .u{font-size:12px;font-weight:500;color:var(--dim)}
 .ch .go{display:none;margin-left:auto;color:var(--dim);font-size:14px;line-height:1}
+#consumo-card .go{display:inline-block}
 .keys{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:2px}
 .keys>div{display:flex;flex-direction:column;gap:1px}
 .keys .kv{display:flex;align-items:center;gap:7px;font-family:inherit;font-size:21px;font-weight:700;letter-spacing:-.6px;
@@ -183,6 +184,36 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .rows .rn{font-size:13.5px;font-weight:600}
 .rows .rs{font-size:11px;color:var(--dim);display:block;margin-top:2px}
 .rows .rv{margin-left:auto;font-family:inherit;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+
+function desenharConsumo24h(a){
+  if(!a||!a.length) return;
+  const N=64, passo=Math.max(1,Math.ceil(a.length/N)), b=[];
+  for(let i=0;i<a.length;i+=passo){
+    const bl=a.slice(i,i+passo);
+    b.push({w:bl.reduce((x,y)=>x+((y.solar||0)+(y.rede||0)),0)/bl.length, iso:bl[0].iso||""});
+  }
+  const max=Math.max(1,...b.map(x=>x.w)), pk=b.reduce((m,x,i)=>x.w>b[m].w?i:m,0);
+  $("#c24-bars").innerHTML="";
+  b.forEach((x,i)=>{
+    const el=document.createElement("i");
+    el.style.height=Math.max(2,100*x.w/max)+"%";
+    el.className = x.w<max*.02 ? "z" : (i===pk?"pk":"");
+    el.style.background = i===pk ? "var(--casa)" : "var(--casa)";
+    el.title=(x.iso?x.iso.slice(11,16)+"h · ":"")+nf(x.w)+" W";
+    $("#c24-bars").appendChild(el);
+  });
+  if(b[pk].w>50){
+    const t=document.createElement("div"); t.className="peak";
+    t.style.left=(100*(pk+.5)/b.length)+"%"; t.textContent=nf(b[pk].w/1000,2)+" kW";
+    $("#c24-bars").appendChild(t);
+  }
+  const h=a.length>1 ? (new Date(a[1].iso)-new Date(a[0].iso))/3600000 : 5/60;
+  const tot=a.reduce((x,y)=>x+((y.solar||0)+(y.rede||0)),0)*h/1000;
+  $("#c24-tot").innerHTML=nf(tot,1)+"<small>kWh</small>";
+  const q=[0,.25,.5,.75].map(f=>{ const iso=b[Math.floor(f*(b.length-1))].iso; return iso?iso.slice(11,16)+"h":"—"; });
+  $("#c24-eixo").innerHTML=q.map(x=>`<span>${x}</span>`).join("")+"<span>agora</span>";
+}
 
 /* ---------- ajustes ---------- */
 .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
@@ -1046,7 +1077,7 @@ async function tickRapido(){
 async function tickLento(){
   try{
     pintarHoje(await api("api/today"));
-    const o=await api("api/origem?horas=24"); if(o.length){ desenharOrigem(o); desenharProducao(o); }
+    const o=await api("api/origem?horas=24"); if(o.length){ desenharOrigem(o); desenharProducao(o); desenharConsumo24h(o); }
     await carregarSolar();
   }catch(_){}
 }
