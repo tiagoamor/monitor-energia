@@ -153,6 +153,14 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .ch .u{font-size:12px;font-weight:500;color:var(--dim)}
 .ch .go{display:none;margin-left:auto;color:var(--dim);font-size:14px;line-height:1}
 #consumo-card .go{display:inline-block}
+.qbad{margin-left:auto;font-size:13px;line-height:1;cursor:help;color:#f59e0b;
+  animation:qpulse 1.6s ease-in-out infinite}
+#consumo-card .qbad ~ .go{margin-left:6px}
+@keyframes qpulse{0%,100%{opacity:1}50%{opacity:.45}}
+.qwarn{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.4;
+  background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.4);color:var(--txt);
+  border-radius:12px;padding:10px 12px;margin:0 0 10px}
+.qwarn b{color:#f59e0b}
 .keys{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:2px}
 .keys>div{display:flex;flex-direction:column;gap:1px}
 .keys .kv{display:flex;align-items:center;gap:7px;font-family:inherit;font-size:21px;font-weight:700;letter-spacing:-.6px;
@@ -264,7 +272,7 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 <header>
   <span class="dot" id="dot"></span>
   <h1>Monitor de Energia</h1>
-  <span class="ver">v0.2.2</span>
+  <span class="ver">v0.2.3</span>
   <span class="stamp" id="stamp">—</span>
   <button id="gear" title="Ajustes">⚙</button>
   <button id="theme" title="Alternar tema">🌙</button>
@@ -323,7 +331,7 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 
   <div class="gr2">
     <div class="card" id="consumo-card" style="cursor:pointer">
-      <div class="ch"><h3>Consumo da casa / W</h3><span class="u"></span><span class="go">↗</span></div>
+      <div class="ch"><h3>Consumo da casa / W</h3><span class="u"></span><span class="qbad" id="q-bad" style="display:none" title="">⚠</span><span class="go">↗</span></div>
       <div class="keys">
         <div><span class="kv"><i style="background:var(--sol)"></i><b id="g-sw">—</b></span>
              <span class="kl">Do sol</span></div>
@@ -512,6 +520,7 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
   <div class="panel">
     <button class="close" id="mclose">✕</button>
     <h2 class="sec">Fases do medidor · ao vivo</h2>
+    <div class="qwarn" id="q-warn" style="display:none"></div>
     <div class="tw card" style="padding:10px 14px"><table><thead><tr>
       <th>Fase</th><th>Tensão</th><th>Corrente</th><th>Potência</th></tr></thead>
       <tbody id="fases"></tbody></table>
@@ -988,6 +997,19 @@ function pintarLive(L){
   });
   const total = (fases.a?.w||0)+(fases.b?.w||0)+(fases.c?.w||0);
   if($("#fases")) $("#fases").innerHTML=rows.join("")+`<tr><td><b>Total</b></td><td></td><td></td><td><b>${nf(total)} W</b></td></tr>`;
+
+  // qualidade do dado: avisa quando o medidor está com leitura instável
+  // (frequência fora do padrão, queda de fase, divergência fase x fluxo)
+  const qual = L.qualidade;
+  const qbad = $("#q-bad"), qwarn = $("#q-warn");
+  if(qual && !qual.ok && qual.avisos?.length){
+    if(qbad){ qbad.style.display="inline-block"; qbad.title=qual.avisos.join(" "); }
+    if(qwarn){ qwarn.style.display="flex";
+      qwarn.innerHTML="⚠️ <div><b>Leitura instável do medidor.</b><br>"+qual.avisos.join("<br>")+"</div>"; }
+  } else {
+    if(qbad) qbad.style.display="none";
+    if(qwarn) qwarn.style.display="none";
+  }
 }
 
 function pintarHoje(d){

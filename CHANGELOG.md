@@ -7,6 +7,18 @@ versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 > **Nota:** a partir daqui o versionamento foi reiniciado em `0.2.0`, a pedido.
 > As entradas `2.x` abaixo são o histórico anterior do projeto.
 
+## [0.2.3] — 2026-09-01
+
+### Adicionado
+- Aviso de **qualidade do dado** no medidor Tuya: o backend agora detecta
+  frequência de rede fora do padrão (fora de 55–65 Hz), fase com tensão
+  anormalmente baixa (indício de queda de fase) e divergência grande entre a
+  soma bruta das fases e o fluxo líquido calculado — sinais de que a leitura
+  ao vivo está instável.
+- Ícone de alerta (⚠) no cartão "Consumo da casa / W" quando o dado está
+  instável, com o motivo no tooltip; e um aviso detalhado dentro do modal
+  "Fases do medidor — ao vivo".
+
 ## [0.2.2] — 2026-08-27
 
 ### Adicionado

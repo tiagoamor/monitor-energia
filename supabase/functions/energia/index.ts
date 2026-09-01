@@ -366,8 +366,37 @@ function montarFluxo(meter: any, gen: number, f: { impW: number; expW: number; o
     freq: meter.freq,
     fwd_kwh: meter.fwd_kwh,
     rev_kwh: meter.rev_kwh,
+    qualidade: avaliarQualidade(meter, casa),
   };
 }
+
+// Detecta leituras fisicamente implausíveis do medidor Tuya: frequência fora
+// do padrão da rede (~60 Hz no Brasil), fase com tensão anormalmente baixa
+// (indício de queda de fase) e divergência grande entre a soma bruta das
+// fases e o fluxo líquido calculado pelos contadores de energia. Isso não
+// altera nenhum cálculo — só avisa o app de que o dado ao vivo está instável,
+// para não confundir o usuário com números sem explicação.
+function avaliarQualidade(meter: any, casaW: number) {
+  const avisos: string[] = [];
+  const freq = Number(meter.freq || 0);
+  if (freq > 0 && (freq < 55 || freq > 65)) {
+    avisos.push(`Frequência da rede fora do padrão (${freq.toFixed(2)} Hz) — leitura do medidor instável.`);
+  }
+  const fases: [string, any][] = [["A", meter.phase_a], ["B", meter.phase_b], ["C", meter.phase_c]];
+  for (const [nome, f] of fases) {
+    if (f && Number(f.v) > 0 && Number(f.v) < 90) {
+      avisos.push(`Fase ${nome} com tensão baixa (${Number(f.v).toFixed(1)} V) — possível queda de fase.`);
+    }
+  }
+  if (casaW > 200 && meter.w_total > 0) {
+    const div = Math.abs(meter.w_total - casaW) / casaW;
+    if (div > 0.35) {
+      avisos.push(`Soma das fases (${Math.round(meter.w_total)} W) e fluxo calculado (${Math.round(casaW)} W) divergem ${Math.round(div * 100)}% — dado instável no momento.`);
+    }
+  }
+  return { ok: avisos.length === 0, avisos };
+}
+
 
 async function liveAll() {
   const [meter, solar] = await Promise.all([readMeter(), solarNow().catch(() => null)]);
