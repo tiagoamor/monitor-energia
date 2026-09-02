@@ -272,7 +272,7 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 <header>
   <span class="dot" id="dot"></span>
   <h1>Monitor de Energia</h1>
-  <span class="ver">v0.2.3</span>
+  <span class="ver">v0.2.4</span>
   <span class="stamp" id="stamp">—</span>
   <button id="gear" title="Ajustes">⚙</button>
   <button id="theme" title="Alternar tema">🌙</button>
@@ -370,14 +370,14 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
   </div>
 
   <div class="card" style="margin-bottom:12px">
-    <div class="ch"><h3>Geração</h3><span class="u">/ kWh · últimas 24 h</span><span class="go">↗</span></div>
+    <div class="ch"><h3>Geração</h3><span class="u">/ kWh · hoje</span><span class="go">↗</span></div>
     <div class="big sol" id="p-tot">—<small>kWh</small></div>
     <div class="bars" id="p-bars"></div>
     <div class="bx" id="p-eixo"><span>—</span><span>—</span><span>—</span><span>—</span><span>agora</span></div>
   </div>
 
   <div class="card" style="margin-bottom:12px">
-    <div class="ch"><h3>Consumo</h3><span class="u">/ kWh · últimas 24 h</span><span class="go">↗</span></div>
+    <div class="ch"><h3>Consumo</h3><span class="u">/ kWh · hoje</span><span class="go">↗</span></div>
     <div class="big casa" id="c24-tot">—<small>kWh</small></div>
     <div class="bars" id="c24-bars"></div>
     <div class="bx" id="c24-eixo"><span>—</span><span>—</span><span>—</span><span>—</span><span>agora</span></div>
@@ -1139,7 +1139,8 @@ async function tickRapido(){
 async function tickLento(){
   try{
     pintarHoje(await api("api/today"));
-    const o=await api("api/origem?horas=24"); if(o.length){ desenharOrigem(o); desenharProducao(o); desenharConsumo24h(o); }
+    const o=await api("api/origem?horas=24"); if(o.length){ desenharOrigem(o); }
+    const od=await api("api/origem"); if(od.length){ desenharProducao(od); desenharConsumo24h(od); }
     await carregarSolar();
   }catch(_){}
 }

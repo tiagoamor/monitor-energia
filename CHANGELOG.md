@@ -7,6 +7,16 @@ versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 > **Nota:** a partir daqui o versionamento foi reiniciado em `0.2.0`, a pedido.
 > As entradas `2.x` abaixo são o histórico anterior do projeto.
 
+## [0.2.4] — 2026-09-01
+
+### Alterado
+- Cartões "Geração" e "Consumo" (barras) passaram de janela móvel de
+  **últimas 24 h** para **dia civil** (00:00 às 23:59, horário de Brasília).
+  Agora os totais em kWh batem exatamente com o "hoje" mostrado no restante
+  do app; de madrugada o gráfico começa vazio e vai preenchendo ao longo do
+  dia. O gráfico "Consumo da casa por origem" (com zoom) continua como
+  janela móvel de 24 h, sem alteração.
+
 ## [0.2.3] — 2026-09-01
 
 ### Adicionado
