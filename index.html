@@ -215,9 +215,9 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .bt.pri{background:var(--txt);border-color:var(--txt);color:var(--bg)}
 .msg{font-size:12.5px;font-weight:600}
 .msg.ok{color:var(--exp)} .msg.err{color:var(--imp)}
-#gear{width:36px;height:36px;border-radius:50%;border:1px solid var(--glassb);
+#gear,#painel-lk{width:36px;height:36px;border-radius:50%;border:1px solid var(--glassb);
   background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  color:var(--txt);font-size:15px;cursor:pointer;display:grid;place-items:center;flex:none;transition:.25s}
+  color:var(--txt);font-size:15px;cursor:pointer;display:grid;place-items:center;flex:none;transition:.25s;text-decoration:none}
 #gear:active{transform:scale(.9)}
 #gear.on{background:var(--glasson);border-color:var(--txt);color:var(--txt)}
 .res{background:var(--gcard2);border:1px solid var(--glassb);border-radius:11px;padding:11px 13px;
@@ -272,8 +272,9 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 <header>
   <span class="dot" id="dot"></span>
   <h1>Monitor de Energia</h1>
-  <span class="ver">v0.2.4</span>
+  <span class="ver">v0.3.0</span>
   <span class="stamp" id="stamp">—</span>
+  <a id="painel-lk" href="painel.html" title="Painel">🏡</a>
   <button id="gear" title="Ajustes">⚙</button>
   <button id="theme" title="Alternar tema">🌙</button>
 </header>

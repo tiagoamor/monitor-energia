@@ -7,6 +7,17 @@ versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 > **Nota:** a partir daqui o versionamento foi reiniciado em `0.2.0`, a pedido.
 > As entradas `2.x` abaixo são o histórico anterior do projeto.
 
+## [0.3.0] — 2026-10-02
+
+### Adicionado
+- Nova página **Painel** (`painel.html`): visão resumida em estilo "vitrine",
+  com foto de fundo, cartões translúcidos (vidro fosco) e destaque amarelo.
+  Mostra autossuficiência ao vivo, geração de hoje, % do consumo vindo do sol,
+  economia (dia e mês), consumo da casa agora, medidor vertical de potência,
+  CO₂ evitado estimado e um resumo da casa conectada (automação, câmeras,
+  mídia e backups). Usa a mesma senha do monitor (login compartilhado).
+- Atalho 🏡 no cabeçalho do monitor para abrir o Painel.
+
 ## [0.2.4] — 2026-09-01
 
 ### Alterado
