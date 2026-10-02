@@ -3,25 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1120" id="mtheme">
-<title>Monitor de Energia</title>
+<meta name="theme-color" content="#161d16" id="mtheme">
+<title>Casa Solar</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 <style>
 :root, [data-theme="dark"]{
-  --bg:#0b1120; --bg2:#0e1526; --card:#151d2e; --card2:#1b2438; --line:#26314a;
-  --txt:#e8eefc; --dim:#8a99b8;
-  --sol:#fbbf24; --casa:#aab6cb; --exp:#34d399; --imp:#f87171;
-  --glass:rgba(26,35,54,.22); --glassb:rgba(255,255,255,.13); --glasson:rgba(255,255,255,.15);
-  --gcard:rgba(18,26,42,.16); --gcard2:rgba(255,255,255,.05); --gline:rgba(255,255,255,.08);
-  --gin:rgba(255,255,255,.09); --track:rgba(255,255,255,.08);
-  --shadow:0 10px 34px rgba(0,0,0,.5);
+  --bg:#161d16; --bg2:#1c241c; --card:#1d251d; --card2:#232c23; --line:rgba(255,255,255,.18);
+  --txt:#ffffff; --dim:rgba(255,255,255,.76);
+  --sol:#ede95f; --casa:#c7d2c7; --exp:#8fe06a; --imp:#ff9f7a;
+  --glass:rgba(22,28,22,.42); --glassb:rgba(255,255,255,.28); --glasson:rgba(255,255,255,.22);
+  --gcard:rgba(22,28,22,.38); --gcard2:rgba(255,255,255,.07); --gline:rgba(255,255,255,.14);
+  --gin:rgba(255,255,255,.10); --track:rgba(255,255,255,.16);
+  --shadow:0 12px 36px rgba(0,0,0,.30);
   --h-sky:#0f1830; --h-roof:#18223c; --h-left:#212c48; --h-right:#2c3959;
   --h-panel:#0e1b33; --h-panelln:#3a5a92; --h-edge:#3a4767; --h-win:#fcd67a;
   --h-line:#5d6d92; --h-ground:rgba(0,0,0,.35);
-  --w-sky1:#0a1226; --w-sky2:#131c33;
+  --w-sky1:#141b14; --w-sky2:#222b20;
   --w-face:#3a4763; --w-face2:#2e3a53; --w-face3:#4a587a;
   --w-side:#26304a; --w-side2:#1e2740; --w-top:#42506f;
   --w-dark:#161d30; --w-dark2:#121828; --w-void:#0a1020; --w-void2:#070b16;
@@ -32,43 +35,17 @@
   --w-pave:#1c2436; --w-pavel:#28324a; --w-grass:#13301c;
   --w-shadow:rgba(0,0,0,.5); --w-box:#2c3856;
   --w-pan1:#0f1d38; --w-pan2:#22406f; --w-panln:#4a6da8; --w-panbase:#2b3550;
-  --w-astro:#e8eefc; --w-cloud:#28334f; --w-cloudo:.32; --w-pole:#4a5673;
-}
-[data-theme="light"]{
-  --bg:#eef2f9; --bg2:#f7f9fd; --card:#ffffff; --card2:#f1f5fb; --line:#dfe6f1;
-  --txt:#16202f; --dim:#647389;
-  --sol:#e08c00; --casa:#5c6a7e; --exp:#0d9668; --imp:#dc2626;
-  --glass:rgba(255,255,255,.30); --glassb:rgba(255,255,255,.55); --glasson:rgba(10,20,40,.08);
-  --gcard:rgba(255,255,255,.26); --gcard2:rgba(255,255,255,.20); --gline:rgba(20,40,80,.08);
-  --gin:rgba(255,255,255,.50); --track:rgba(20,40,80,.08);
-  --shadow:0 10px 30px rgba(20,40,80,.16);
-  --h-sky:#e4ebf6; --h-roof:#b9c6dd; --h-left:#ced9ea; --h-right:#e6edf7;
-  --h-panel:#31456e; --h-panelln:#7d93bd; --h-edge:#a9b7cf; --h-win:#f6c453;
-  --h-line:#93a3bd; --h-ground:rgba(40,60,100,.13);
-  --w-sky1:#bcd8f4; --w-sky2:#e7f0fa;
-  --w-face:#dfe3e9; --w-face2:#c9cfd9; --w-face3:#eef1f5;
-  --w-side:#c3c9d3; --w-side2:#aeb5c1; --w-top:#e9ecf1;
-  --w-dark:#4f5661; --w-dark2:#434a55; --w-void:#3d434c; --w-void2:#2b3038;
-  --w-edge:#a8b0bd; --w-wood:#b5793c; --w-woodl:#d5a066;
-  --w-door:#c8892f; --w-doorl:#e6b269;
-  --w-glass1:#aac5dc; --w-glass2:#6d8fb1; --w-frame:#2b3038;
-  --w-rail:#bcd6ea; --w-inox:#8d99a8; --w-floor:#d7dce4;
-  --w-pave:#cfd4dc; --w-pavel:#bcc2cc; --w-grass:#86b563;
-  --w-shadow:rgba(35,55,90,.22); --w-box:#b9c0cb;
-  --w-pan1:#2b3f68; --w-pan2:#4f6b9c; --w-panln:#8ea6c9; --w-panbase:#9aa5b5;
-  --w-astro:#ffd45e; --w-cloud:#ffffff; --w-cloudo:.62; --w-pole:#8b94a3;
+  --w-astro:#f5f18a; --w-cloud:#39443a; --w-cloudo:.32; --w-pole:#4a5673;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:
-    radial-gradient(1100px 760px at 14% 4%,  rgba(52,211,153,.34), transparent 56%),
-    radial-gradient(920px 640px at 86% 14%,  rgba(251,191,36,.28), transparent 58%),
-    radial-gradient(1120px 760px at 50% 104%,rgba(140,160,200,.30), transparent 60%),
-    radial-gradient(680px 420px at 52% 36%, rgba(255,255,255,.08), transparent 62%),
+    linear-gradient(180deg,rgba(10,14,10,.52) 0%,rgba(10,14,10,.30) 38%,rgba(10,14,10,.58) 100%),
+    url("painel-bg.jpg") center/cover no-repeat fixed,
     var(--bg);
   transition:background .35s}
 body{background:var(--bg);color:var(--txt);
-  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font:15px/1.5 "Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   padding-bottom:calc(130px + env(safe-area-inset-bottom));
   transition:background .35s,color .35s}
 .wrap{max-width:1080px;margin:0 auto;padding:16px}
@@ -86,10 +63,70 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .zbtn:active{transform:scale(.94)}
 .stamp{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
-#theme{width:36px;height:36px;border-radius:50%;border:1px solid var(--glassb);
-  background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  color:var(--txt);font-size:16px;cursor:pointer;display:grid;place-items:center;flex:none;transition:.25s}
-#theme:active{transform:scale(.9)}
+
+/* ---------- aba início (painel) ---------- */
+#t-inicio .heroi{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,.95fr);
+  gap:clamp(18px,3vw,36px);align-items:start;margin-top:clamp(10px,2vh,26px)}
+#t-inicio h2.titulo{font-size:clamp(30px,5vw,54px);line-height:1.08;font-weight:700;
+  text-shadow:0 2px 24px rgba(0,0,0,.35);border:0;padding:0;margin:0;text-transform:none;letter-spacing:0;color:var(--txt)}
+#t-inicio .sub{margin-top:14px;font-size:clamp(14px,1.5vw,17px);color:var(--dim);max-width:46ch}
+#t-inicio .acoes{display:flex;gap:12px;margin-top:clamp(18px,3vh,32px);flex-wrap:wrap}
+#t-inicio .pill{background:var(--sol);color:#1c2416;border:0;border-radius:14px;
+  padding:12px 24px;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;
+  text-decoration:none;display:inline-block;transition:transform .15s,box-shadow .15s}
+#t-inicio .pill:active{transform:scale(.97)}
+#t-inicio .fantasma{background:rgba(255,255,255,.14);border:1px solid var(--glassb);color:#fff;border-radius:14px;
+  padding:12px 24px;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#t-inicio .chip{display:inline-flex;align-items:center;gap:12px;margin-top:clamp(16px,3vh,26px);
+  background:var(--glass);border:1px solid var(--glassb);border-radius:18px;padding:11px 16px;
+  backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
+  box-shadow:0 10px 30px rgba(0,0,0,.25)}
+#t-inicio .chip .bola{width:38px;height:38px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff7ae,var(--sol));
+  display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 22px rgba(237,233,95,.55)}
+#t-inicio .chip b{font-size:21px;font-weight:700}
+#t-inicio .chip small{display:block;color:var(--dim);font-size:12.5px;font-weight:500}
+#t-inicio .vcard{background:var(--glass);border:1px solid var(--glassb);border-radius:20px;
+  backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
+  box-shadow:0 12px 36px rgba(0,0,0,.22);padding:clamp(14px,1.8vw,20px)}
+#t-inicio .lateral{display:flex;flex-direction:column;gap:14px;justify-self:end;width:100%;max-width:300px}
+#t-inicio .lateral .vcard{border-color:rgba(237,233,95,.40)}
+#t-inicio .topo{display:flex;align-items:center;gap:14px}
+#t-inicio .icone{width:44px;height:44px;border-radius:14px;background:rgba(237,233,95,.16);flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:21px}
+#t-inicio .num{font-size:clamp(26px,2.8vw,36px);font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+#t-inicio .num small{font-size:.48em;font-weight:600;color:var(--dim);margin-left:2px}
+#t-inicio .rotulo{margin-top:10px;color:var(--dim);font-size:13.5px;font-weight:500}
+#t-inicio .fileira{display:grid;grid-template-columns:64px repeat(4,1fr);gap:clamp(10px,1.4vw,16px);
+  margin-top:clamp(18px,3.4vh,34px)}
+#t-inicio .tile{display:flex;flex-direction:column;justify-content:space-between;min-height:132px}
+#t-inicio .tile .cab{display:flex;align-items:center;gap:11px}
+#t-inicio .bolinha{width:38px;height:38px;border-radius:50%;background:var(--sol);color:#1c2416;
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+#t-inicio .tile .num{font-size:clamp(22px,2.2vw,30px)}
+#t-inicio .tile .rotulo{margin-top:0}
+#t-inicio .medidor{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 8px}
+#t-inicio .medidor .raio{font-size:15px;color:var(--sol)}
+#t-inicio .trilho{flex:1;width:14px;border-radius:10px;background:var(--track);position:relative;overflow:hidden;min-height:70px}
+#t-inicio .trilho i{position:absolute;left:0;right:0;bottom:0;height:8%;border-radius:10px;
+  background:linear-gradient(180deg,#9fe06a,var(--sol) 55%,#f0a73c);transition:height .8s ease}
+#t-inicio .medidor small{color:var(--dim);font-size:10px;font-weight:600;text-align:center;line-height:1.25}
+#t-inicio .secao{margin-top:clamp(12px,2vh,20px);display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.4vw,16px)}
+#t-inicio .mini{padding:14px 16px}
+#t-inicio .mini b{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+#t-inicio .mini p{margin-top:5px;color:var(--dim);font-size:12.5px;line-height:1.45}
+@media (max-width:900px){
+  #t-inicio .heroi{grid-template-columns:1fr}
+  #t-inicio .lateral{max-width:none;justify-self:stretch}
+  #t-inicio .fileira{grid-template-columns:repeat(2,1fr)}
+  #t-inicio .medidor{display:none}
+  #t-inicio .secao{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:540px){
+  #t-inicio .fileira{grid-template-columns:1fr}
+  #t-inicio .secao{grid-template-columns:1fr}
+}
 
 /* ---------- dock flutuante ---------- */
 .dock{position:fixed;left:50%;transform:translateX(-50%);
@@ -215,7 +252,7 @@ header h1{font-size:19px;font-weight:650;letter-spacing:-.3px}
 .bt.pri{background:var(--txt);border-color:var(--txt);color:var(--bg)}
 .msg{font-size:12.5px;font-weight:600}
 .msg.ok{color:var(--exp)} .msg.err{color:var(--imp)}
-#gear,#painel-lk{width:36px;height:36px;border-radius:50%;border:1px solid var(--glassb);
+#gear{width:36px;height:36px;border-radius:50%;border:1px solid var(--glassb);
   background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   color:var(--txt);font-size:15px;cursor:pointer;display:grid;place-items:center;flex:none;transition:.25s;text-decoration:none}
 #gear:active{transform:scale(.9)}
@@ -254,7 +291,7 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 #gate form{background:var(--gcard);border:1px solid var(--glassb);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);padding:28px;border-radius:18px;width:min(320px,86vw);text-align:center}
 #gate input{width:100%;margin:16px 0 12px;padding:12px;border-radius:12px;border:1px solid var(--glassb);
   background:var(--gcard2);color:var(--txt);font-size:16px;text-align:center}
-#gate button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--casa);color:var(--bg);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
+#gate button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--sol);color:#1c2416;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
 .err{color:var(--imp);font-size:12.5px;margin-top:10px;min-height:16px}
 @media(max-width:520px){.wrap{padding:12px}.big{font-size:26px}.pc{font-size:38px}}
 </style>
@@ -271,16 +308,81 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 <div class="wrap" id="app" style="display:none">
 <header>
   <span class="dot" id="dot"></span>
-  <h1>Monitor de Energia</h1>
-  <span class="ver">v0.3.0</span>
+  <h1>Casa Solar</h1>
+  <span class="ver">v0.4.0</span>
   <span class="stamp" id="stamp">—</span>
-  <a id="painel-lk" href="painel.html" title="Painel">🏡</a>
   <button id="gear" title="Ajustes">⚙</button>
-  <button id="theme" title="Alternar tema">🌙</button>
 </header>
 
+<!-- ================= INÍCIO ================= -->
+<section class="tab on" id="t-inicio">
+
+  <div class="heroi">
+    <div>
+      <h2 class="titulo">Energia do sol,<br>direto na sua casa</h2>
+      <p class="sub">Geração, consumo e economia em tempo real — medidor Tuya SPM02 + inversor Solis, planta de 5,0 kWp.</p>
+
+      <div class="chip">
+        <div class="bola">⚡</div>
+        <div><b id="p-chip">—%</b><small>Autossuficiência agora</small></div>
+      </div>
+
+      <div class="acoes">
+        <button class="pill" id="p-ir-monitor">Ver monitor completo</button>
+      </div>
+    </div>
+
+    <div class="lateral">
+      <div class="vcard">
+        <div class="topo"><div class="icone">🔌</div><div class="num" id="p-cons">—<small>kWh</small></div></div>
+        <div class="rotulo">Consumo de hoje</div>
+      </div>
+      <div class="vcard">
+        <div class="topo"><div class="icone">☀️</div><div class="num" id="p-ger">—<small>kWh</small></div></div>
+        <div class="rotulo">Geração de hoje</div>
+      </div>
+      <div class="vcard">
+        <div class="topo"><div class="icone">🏠</div><div class="num" id="p-casa">—<small>W</small></div></div>
+        <div class="rotulo">Casa consumindo agora</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fileira">
+    <div class="vcard medidor">
+      <span class="raio">⚡</span>
+      <div class="trilho"><i id="p-gauge"></i></div>
+      <small id="p-gauge-txt">— W<br>de 5,0 kWp</small>
+    </div>
+    <div class="vcard tile">
+      <div class="cab"><div class="bolinha">☀️</div><div class="num" id="p-auto">—<small>%</small></div></div>
+      <div class="rotulo">Do consumo veio do sol hoje</div>
+    </div>
+    <div class="vcard tile">
+      <div class="cab"><div class="bolinha">💰</div><div class="num" id="p-eco">—</div></div>
+      <div class="rotulo" id="p-eco-rot">Economia hoje</div>
+    </div>
+    <div class="vcard tile">
+      <div class="cab"><div class="bolinha">🌱</div><div class="num" id="p-co2">—</div></div>
+      <div class="rotulo">CO₂ evitado <span id="p-co2-nota" style="opacity:.7"></span></div>
+    </div>
+    <div class="vcard tile">
+      <div class="cab"><div class="bolinha">⬆️</div><div class="num" id="p-inj">—<small>kWh</small></div></div>
+      <div class="rotulo">Injetado na rede hoje</div>
+    </div>
+  </div>
+
+  <div class="secao">
+    <div class="vcard mini"><b>🧠 Automação</b><p>Home Assistant + ESPHome no NAS, NSPanel na parede e Homebridge no Raspberry Pi levando tudo para o Apple Home.</p></div>
+    <div class="vcard mini"><b>📷 Câmeras</b><p>go2rtc transmite e o Frigate grava com detecção de movimento, com gravações no HD de 8 TB.</p></div>
+    <div class="vcard mini"><b>🎬 Mídia</b><p>Jellyfin e qBittorrent no NAS Ugreen DXP2800, com a biblioteca no HD de 3 TB.</p></div>
+    <div class="vcard mini"><b>🗄️ Backups</b><p>Configs do NAS e do Pi salvas todo dia de madrugada, em 2 discos diferentes, com 14 versões guardadas.</p></div>
+  </div>
+
+</section>
+
 <!-- ================= AGORA ================= -->
-<section class="tab on" id="t-agora">
+<section class="tab" id="t-agora">
 
   <div class="scene">
     <svg id="casa" viewBox="0 0 600 420" preserveAspectRatio="xMidYMid meet">
@@ -534,7 +636,8 @@ h2.sec{font-size:13px;font-weight:650;margin:22px 0 10px;color:var(--dim);text-t
 
 <nav class="dock" id="dock" style="display:none">
   <span class="ind" id="ind"></span>
-  <button class="on" data-t="agora">⚡ Agora</button>
+  <button class="on" data-t="inicio">🏡 Início</button>
+  <button data-t="agora">⚡ Agora</button>
   <button data-t="solar">☀️ Solar</button>
   <button data-t="hist">📊 Histórico</button>
 </nav>
@@ -558,14 +661,11 @@ async function api(p,corpo){
 }
 
 /* ---------- tema ---------- */
-function aplicarTema(t){
-  document.documentElement.dataset.theme=t;
-  $("#theme").textContent=t==="dark"?"🌙":"☀️";
-  $("#mtheme").content=t==="dark"?"#0b1120":"#eef2f9";
-  localStorage.setItem("tema",t);
+function aplicarTema(){
+  document.documentElement.dataset.theme="dark";
+  $("#mtheme").content="#161d16";
   aplicarCoresChart(); redesenhar();
 }
-$("#theme").onclick=()=>aplicarTema(document.documentElement.dataset.theme==="dark"?"light":"dark");
 /* chamada inicial fica no fim do script (evita TDZ de charts/cssv) */
 
 function abrirModal(){ $("#modal").classList.add("on"); $("#modal").setAttribute("aria-hidden","false"); }
@@ -588,6 +688,7 @@ document.querySelectorAll(".dock button").forEach(b=>b.onclick=()=>{
   if(b.dataset.t==="hist") carregarHist().catch(()=>{});
 });
 addEventListener("resize",moverInd);
+if($("#p-ir-monitor")) $("#p-ir-monitor").onclick=()=>document.querySelector('.dock button[data-t="agora"]').click();
 $("#zreset").onclick=()=>{ const c=charts["#c-origem"]; if(c&&c.resetZoom) c.resetZoom(); };
 
 /* ---------- gauges e barras ---------- */
@@ -917,7 +1018,7 @@ const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).tri
 function aplicarCoresChart(){
   Chart.defaults.color=cssv("--dim");
   Chart.defaults.borderColor=cssv("--line");
-  Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,sans-serif";
+  Chart.defaults.font.family='"Poppins",-apple-system,BlinkMacSystemFont,sans-serif';
 }
 function draw(id,cfg){ charts[id]?.destroy(); charts[id]=new Chart($(id),cfg); }
 const legenda={legend:{labels:{boxWidth:11,boxHeight:11,usePointStyle:true,pointStyle:"circle",padding:14}}};
@@ -1011,6 +1112,15 @@ function pintarLive(L){
     if(qbad) qbad.style.display="none";
     if(qwarn) qwarn.style.display="none";
   }
+
+  // aba início
+  if($("#p-chip")){
+    $("#p-chip").textContent=nf(L.autossuficiencia)+"%";
+    $("#p-casa").innerHTML=nf(casa)+"<small>W</small>";
+    const pPct=Math.max(2,Math.min(100,100*ger/(capacidade*1000)));
+    $("#p-gauge").style.height=pPct+"%";
+    $("#p-gauge-txt").innerHTML=nf(ger)+" W<br>de "+nf(capacidade,1)+" kWp";
+  }
 }
 
 function pintarHoje(d){
@@ -1027,6 +1137,19 @@ function pintarHoje(d){
     $("#lb-curva").textContent=d.curva_dia===hoje?"Curva de geração de hoje"
       :`Curva de geração — ${d.curva_dia.slice(8,10)}/${d.curva_dia.slice(5,7)}`;
   }
+
+  // aba início
+  if($("#p-cons")){
+    $("#p-cons").innerHTML=nf(h.casa,1)+"<small>kWh</small>";
+    $("#p-ger").innerHTML=nf(h.geracao,1)+"<small>kWh</small>";
+    $("#p-auto").innerHTML=nf(h.autossuficiencia)+"<small>%</small>";
+    $("#p-eco").textContent="R$ "+nf(d.economia,2);
+    $("#p-eco-rot").textContent="Economia hoje · R$ "+nf(d.mes_brl,0)+" no mês";
+    const co2kg=(d.total_kwh||0)*0.07; // fator médio do SIN (MCTI), aproximado
+    $("#p-co2").innerHTML=co2kg>=1000?nf(co2kg/1000,2)+"<small>t</small>":nf(co2kg)+"<small>kg</small>";
+    $("#p-co2-nota").textContent="("+nf(d.total_kwh)+" kWh gerados)";
+    $("#p-inj").innerHTML=nf(h.injetado,1)+"<small>kWh</small>";
+  }
 }
 
 function desenharOrigem(a){
@@ -1034,7 +1157,7 @@ function desenharOrigem(a){
   const rot=a.map(x=>x.iso? x.iso.slice(11,16)+"h" : x.t);
   const dia=a.map(x=>x.iso? x.iso.slice(8,10)+"/"+x.iso.slice(5,7) : "");
   draw("#c-origem",{type:"line",data:{labels:rot,datasets:[
-    {label:"Do sol",data:a.map(x=>x.solar),borderColor:cssv("--sol"),backgroundColor:"rgba(251,191,36,.35)",
+    {label:"Do sol",data:a.map(x=>x.solar),borderColor:cssv("--sol"),backgroundColor:"rgba(237,233,95,.35)",
       fill:true,tension:.3,pointRadius:0,borderWidth:1.5},
     {label:"Da rede",data:a.map(x=>x.rede),borderColor:cssv("--casa"),backgroundColor:"rgba(150,163,185,.30)",
       fill:true,tension:.3,pointRadius:0,borderWidth:1.5}]},
@@ -1055,7 +1178,7 @@ function desenharCurva(c){
   ultCurva=c;
   draw("#c-curva",{type:"line",data:{labels:c.map(x=>x.t),datasets:[{
     label:"Geração (W)",data:c.map(x=>x.w),borderColor:cssv("--sol"),
-    backgroundColor:"rgba(251,191,36,.16)",fill:true,tension:.35,pointRadius:0,borderWidth:2}]},
+    backgroundColor:"rgba(237,233,95,.16)",fill:true,tension:.35,pointRadius:0,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false},
       tooltip:{callbacks:{label:i=>nf(i.parsed.y)+" W"}}},
       scales:{x:{ticks:{maxTicksLimit:9,autoSkip:true}},
@@ -1147,7 +1270,7 @@ async function tickLento(){
 }
 function iniciar(){ tickRapido(); tickLento(); setInterval(tickRapido,5000); setInterval(tickLento,60000); }
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden){tickRapido();tickLento();} });
-aplicarTema(localStorage.getItem("tema")||"dark");
+aplicarTema();
 montarCasa();
 const EK=localStorage.getItem("ek")||K||"";
 if(EK){ K=EK; api("api/meter").then(abrir).catch(()=>localStorage.removeItem("ek")); }

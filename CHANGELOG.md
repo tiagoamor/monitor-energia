@@ -7,6 +7,13 @@ versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 > **Nota:** a partir daqui o versionamento foi reiniciado em `0.2.0`, a pedido.
 > As entradas `2.x` abaixo são o histórico anterior do projeto.
 
+## 0.4.0 — 2026-09-28
+- Projeto unificado em um único endereço (index.html); painel.html agora redireciona.
+- Nova aba "🏡 Início" como tela inicial, com destaque para consumo do dia, geração do dia e casa consumindo agora.
+- Visual novo em todo o app: glassmorphism com foto de fundo, fonte Poppins, amarelo #ede95f.
+- Tema claro removido (padrão único escuro sobre foto).
+- App renomeado para "Casa Solar".
+
 ## [0.3.0] — 2026-10-02
 
 ### Adicionado
